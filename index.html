@@ -1020,6 +1020,81 @@ setTimeout(() => {
   document.getElementById('sound-toggle').classList.add('revealed');
 }, 3000);
 
+// Auto-play Om on first user interaction
+function playOmNamahShivay() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioContext();
+
+  const duration = 7; // 6–8 seconds
+  const baseFreq = 136;
+
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0, ctx.currentTime);
+
+  // Fade in (1.5s), sustain, fade out (last 2s)
+  master.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 1.5);
+  master.gain.setValueAtTime(0.6, ctx.currentTime + duration - 2);
+  master.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
+
+  master.connect(ctx.destination);
+
+  // Subtle warmth filter (male voice depth)
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 500;
+  filter.Q.value = 1.2;
+  filter.connect(master);
+
+  function createLayer(freq, gainVal, detune = 0) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.value = freq;
+    osc.detune.value = detune;
+
+    gain.gain.value = gainVal;
+
+    osc.connect(gain);
+    gain.connect(filter);
+
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  }
+
+  // Layered tones to simulate chant (Om → Na → Mah → Shi → Va → Ya)
+  createLayer(baseFreq, 0.5);          // Om base
+  createLayer(baseFreq * 0.5, 0.25);   // deep undertone
+  createLayer(baseFreq * 2, 0.12);     // harmonic
+  createLayer(baseFreq * 1.01, 0.08);  // slight detune (human feel)
+  createLayer(baseFreq * 0.99, 0.08);  // slight detune
+
+  // Slow amplitude modulation (breathing chant feel)
+  const lfo = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+
+  lfo.frequency.value = 0.15;
+  lfoGain.gain.value = 0.05;
+
+  lfo.connect(lfoGain);
+  lfoGain.connect(master.gain);
+
+  lfo.start();
+  lfo.stop(ctx.currentTime + duration);
+}
+
+
+// 🔁 Play only once on first interaction (click or touch)
+function initOmOnce() {
+  playOmNamahShivay();
+
+  window.removeEventListener("click", initOmOnce);
+  window.removeEventListener("touchstart", initOmOnce);
+}
+
+window.addEventListener("click", initOmOnce, { once: true });
+window.addEventListener("touchstart", initOmOnce, { once: true });
+
 /* ══════════════════════════════════════════════════
    ASK / ANSWER
 ══════════════════════════════════════════════════ */
