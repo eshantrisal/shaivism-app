@@ -106,7 +106,7 @@
     /* ── APP NAME ── */
     h1.app-name {
       font-family: 'Cinzel', serif;
-      font-size: clamp(2.2rem, 7vw, 4.4rem);
+      font-size: clamp(3.2rem, 10vw, 5.8rem);
       font-weight: 700;
       letter-spacing: 0.38em;
       text-indent: 0.38em;
@@ -306,20 +306,22 @@
 
     .new-q-link {
       display: inline-block;
-      margin-top: 10px;
+      margin-top: 14px;
       font-family: 'Cinzel', serif;
-      font-size: 0.62rem;
-      letter-spacing: 0.2em;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: rgba(201,168,76,0.42);
+      color: rgba(232,208,138,0.95);
       cursor: pointer;
       background: none;
       border: none;
-      padding: 0;
+      padding: 6px 0;
       transition: color 0.2s;
       flex-shrink: 0;
     }
-    .new-q-link:hover { color: var(--gold); }
+    .new-q-link:hover {
+      color: var(--gold-light);
+    }
 
     /* ── RIPPLE RINGS — emanate from input on focus ── */
     .ripple-ring {
@@ -342,24 +344,25 @@
 
     /* ── ASK BUTTON ── */
     .ask-btn {
-      width: 100%;
-      height: 56px;
-      display: block;
-      margin: 14px auto 0;
-      background: var(--gold);
-      border: none;
-      border-radius: 8px;
-      color: #04020e;
-      cursor: pointer;
-      font-family: 'Cinzel', serif;
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.32em;
-      text-indent: 0.32em;
-      text-transform: uppercase;
-      padding: 15px 68px;
-      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-      box-shadow: 0 2px 28px rgba(201,168,76,0.32);
+    width: 100%;
+    height: 52px;
+    display: block;
+    margin: 14px auto 0;
+    background: transparent;
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-indent: 0.32em;
+    text-transform: uppercase;
+    padding: 15px 68px;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    box-shadow: 0 2px 16px rgba(201,168,76,0.25);
+    opacity: 0.9;
     }
     .ask-btn:hover  { background: var(--gold-light); box-shadow: 0 4px 36px rgba(201,168,76,0.48); }
     .ask-btn:active { transform: scale(0.97); }
@@ -745,15 +748,11 @@ font-size: 0.85rem;
     <button class="ask-btn" id="ask-btn" onclick="askQuestion()">ASK</button>
   </div>
 
-  <!-- DAILY INSIGHT -->
+  <!-- SUGGESTED QUESTIONS / EXPLORE -->
   <div class="card-area">
-    <div class="insight-card" id="insight-card">
-      <p class="insight-label">✦ &nbsp; Daily Insight &nbsp; ✦</p>
-      <p class="insight-text">
-        Kashmir Shaivism teaches that Shiva performs five eternal acts — creation, sustenance,
-        dissolution, concealment, and grace — not as events in time, but as the ceaseless
-        pulse of pure consciousness recognising itself. You are already the witness of all five.
-      </p>
+    <div class="insight-card" id="question-suggestions">
+      <p class="insight-label">✦ &nbsp; Explore &nbsp; ✦</p>
+      <div id="suggested-questions"></div>
     </div>
   </div>
 
@@ -1015,11 +1014,8 @@ function fireRipple() {
 }
 
 /* ══════════════════════════════════════════════════
-   DAILY INSIGHT
+   DAILY INSIGHT / SUGGESTED QUESTIONS
 ══════════════════════════════════════════════════ */
-setTimeout(() => {
-  document.getElementById('insight-card').classList.add('visible');
-}, 7000);
 setTimeout(() => {
   document.getElementById('sound-toggle').classList.add('revealed');
 }, 3000);
@@ -1027,10 +1023,42 @@ setTimeout(() => {
 /* ══════════════════════════════════════════════════
    ASK / ANSWER
 ══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   COST OPTIMIZATION LAYER (CACHE + PRESET ANSWERS)
+══════════════════════════════════════════════════ */
+
+const QA_CACHE = JSON.parse(localStorage.getItem("qa_cache") || "{}");
+
+const PRESET_ANSWERS = {
+  "what is kashmir shaivism in simple words?":
+    "Kashmir Shaivism teaches that everything is Shiva (pure consciousness), and you are not separate from it.",
+  "who is shiva in this tradition?":
+    "Shiva is pure awareness itself—the silent, infinite consciousness that appears as everything you experience.",
+  "what is spanda?":
+    "Spanda (the subtle vibration of awareness) is the living pulse through which consciousness expresses itself as all experience.",
+  "what does pratyabhijña mean?":
+    "Pratyabhijña (self-recognition) means realizing that your own awareness is none other than Shiva.",
+  "what is the role of shakti?":
+    "Shakti (the dynamic power of consciousness) is the creative force through which Shiva becomes the universe."
+};
+
 async function askQuestion() {
   const input   = document.getElementById('question-input');
-  const q       = input.value.trim();
+  const qRaw = input.value.trim();
+  const q = qRaw.toLowerCase();
   if (!q) return;
+
+  /* Check preset answers first (zero cost) */
+  if (PRESET_ANSWERS[q]) {
+    showAnswer(PRESET_ANSWERS[q], qRaw);
+    return;
+  }
+
+  /* Check cache */
+  if (QA_CACHE[q]) {
+    showAnswer(QA_CACHE[q], qRaw);
+    return;
+  }
 
   const inputView  = document.getElementById('input-view');
   const answerView = document.getElementById('answer-view');
@@ -1038,7 +1066,7 @@ async function askQuestion() {
   const textEl     = document.getElementById('answer-text');
   const btn        = document.getElementById('ask-btn');
 
-  echoEl.textContent   = '“' + q + '”';
+  echoEl.textContent   = '“' + qRaw + '”';
   textEl.className     = '';
   textEl.textContent   = 'Consulting the tradition…';
   textEl.style.opacity = '0.5';
@@ -1052,14 +1080,17 @@ async function askQuestion() {
     const res  = await fetch('/ask', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ question: q }),
+      body:    JSON.stringify({ question: qRaw }),
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     textEl.style.opacity = '1';
     textEl.textContent   = data.answer;
     textEl.classList.add('answer-loaded');
-    renderFollowUp(data.followup);
+
+    /* Save to cache */
+    QA_CACHE[q] = data.answer;
+    localStorage.setItem("qa_cache", JSON.stringify(QA_CACHE));
   } catch {
     textEl.style.opacity = '0.7';
     textEl.textContent   = 'A moment of stillness — please try again.';
@@ -1067,6 +1098,25 @@ async function askQuestion() {
     btn.disabled    = false;
     btn.textContent = 'ASK';
   }
+}
+
+function showAnswer(answer, originalQuestion) {
+  const inputView  = document.getElementById('input-view');
+  const answerView = document.getElementById('answer-view');
+  const echoEl     = document.getElementById('echo-q');
+  const textEl     = document.getElementById('answer-text');
+  const btn        = document.getElementById('ask-btn');
+
+  echoEl.textContent = '“' + originalQuestion + '”';
+  textEl.textContent = answer;
+  textEl.style.opacity = '1';
+  textEl.className = 'answer-loaded';
+
+  inputView.classList.add('hidden');
+  answerView.classList.add('visible');
+
+  btn.disabled = false;
+  btn.textContent = 'ASK';
 }
 
 function resetToInput() {
@@ -1173,21 +1223,45 @@ function toggleOm() {
 
   omOscs = [o1, o2, o3, o4, o5, lfo];
 }
-function renderFollowUp(question) {
-  const container = document.getElementById('followup-area');
-  if (!container || !question) return;
+// SUGGESTED QUESTIONS LOGIC
+const SUGGESTED_QUESTIONS = [
+  "What is Kashmir Shaivism in simple words?",
+  "Who is Shiva in this tradition?",
+  "What is Spanda?",
+  "What does Pratyabhijña mean?",
+  "How can I experience this philosophy?",
+  "What is the role of Shakti?",
+  "Who was Abhinavagupta?",
+  "Is this philosophy practical in daily life?",
+  "What is consciousness according to Shaivism?",
+  "How is this different from Advaita Vedanta?"
+];
+
+function renderSuggestedQuestions() {
+  const container = document.getElementById('suggested-questions');
+  if (!container) return;
+
+  const shuffled = SUGGESTED_QUESTIONS.sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, 3);
+
   container.innerHTML = '';
-  const chip = document.createElement('div');
-  chip.className = 'followup-chip';
-  chip.textContent = question;
-  chip.onclick = () => {
-    const input = document.getElementById('question-input');
-    resetToInput();
-    input.value = question;
-    setTimeout(() => askQuestion(), 50);
-  };
-  container.appendChild(chip);
+
+  selected.forEach(q => {
+    const chip = document.createElement('div');
+    chip.className = 'followup-chip';
+    chip.textContent = q;
+    chip.onclick = () => {
+      const input = document.getElementById('question-input');
+      input.value = q;
+      askQuestion();
+    };
+    container.appendChild(chip);
+  });
+
+  document.getElementById('question-suggestions').classList.add('visible');
 }
+
+renderSuggestedQuestions();
 </script>
 <div class="footer">
   A quiet space to explore Kashmir Shaivism — built by Eshan Trisal.<br/>
@@ -1195,3 +1269,4 @@ function renderFollowUp(question) {
 </div>
 </body>
 </html>
+
