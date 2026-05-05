@@ -50,6 +50,7 @@
 
     /* ── PARTICLE CANVAS ── */
     #particles {
+      opacity: 0.4;
       position: fixed;
       inset: 0;
       z-index: 1;
@@ -72,6 +73,7 @@
 
     /* ── SHIVA SILHOUETTE ── */
     .shiva-wrap {
+      opacity: 0.05;
       position: fixed;
       top: 48%;
       left: 50%;
@@ -337,6 +339,8 @@
 
     /* ── ASK BUTTON ── */
     .ask-btn {
+      width: 100%;
+      height: 56px;
       display: block;
       margin: 14px auto 0;
       background: var(--gold);
@@ -490,13 +494,6 @@
       .ripple-ring { height: 160px; }
       .ask-area   { margin-bottom: 10px; }
     }
-  /* MOBILE-FIRST IMPROVEMENTS ADDED */
-
-html, body {
-height: auto;
-overflow-y: auto;
--webkit-overflow-scrolling: touch;
-}
 
 .page {
 padding: 16px 14px 24px;
@@ -568,11 +565,22 @@ scroll-behavior: smooth;
 
 /* Footer */
 .footer {
-text-align: center;
-font-size: 0.7rem;
-color: rgba(201,168,76,0.6);
-margin-top: 20px;
-padding-bottom: 10px;
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+
+  font-size: 0.78rem;
+  line-height: 1.4;
+  padding: 0 12px;
+
+  color: rgba(232, 208, 138, 0.75);
+
+  backdrop-filter: blur(4px);
+
+  z-index: 20;
+  pointer-events: none;
 }
 
 /* Responsive tweaks for 375px - 430px */
@@ -1190,8 +1198,8 @@ async function renderFollowUps(question, answer) {
 }
 </script>
 <div class="footer">
-Shaivism is a vibe coding project by Eshan Trisal. 
-For feedback, write to trisaleshan@gmail.com
+  Shaivism — a quiet exploration by Eshan Trisal<br/>
+  Feedback: trisaleshan@gmail.com
 </div>
 </body>
 </html>
