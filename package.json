@@ -1,0 +1,20 @@
+{
+  "name": "kashmir-shaivism-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "@google/generative-ai": "^0.24.1",
+    "canvas": "^3.2.3",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "node-fetch": "^3.3.2",
+    "pdfjs-dist": "^5.7.284"
+  },
+  "devDependencies": {
+    "pdf-parse": "^2.4.5"
+  }
+}

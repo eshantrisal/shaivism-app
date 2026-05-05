@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shaivism — Kashmir Shaivism</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:        #c9a84c;
+      --gold-light:  #e8d08a;
+      --gold-dim:    rgba(232, 208, 138, 0.55);
+      --gold-border: rgba(201, 168, 76, 0.28);
+      --card-bg:     rgba(4, 2, 14, 0.80);
+    }
+
+    html, body {
+      height: 100vh;
+      overflow: hidden;
+      background: #04020e;
+      font-family: 'EB Garamond', Georgia, serif;
+      color: var(--gold-light);
+    }
+
+    /* ── BACKGROUND IMAGE ── */
+    .bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/e3/Kailash_north.JPG');
+      background-size: cover;
+      background-position: center 28%;
+      background-repeat: no-repeat;
+    }
+    .bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(2, 1, 8, 0.97) 0%,
+        rgba(2, 1, 8, 0.94) 30%,
+        rgba(2, 1, 8, 0.96) 60%,
+        rgba(2, 1, 8, 0.99) 100%
+      );
+    }
+
+    /* ── PARTICLE CANVAS ── */
+    #particles {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ── GOLDEN VIGNETTE ── */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: radial-gradient(
+        ellipse 78% 75% at 50% 50%,
+        transparent 30%,
+        rgba(2, 1, 8, 0.40) 62%,
+        rgba(2, 1, 8, 0.88) 100%
+      );
+    }
+
+    /* ── SHIVA SILHOUETTE ── */
+    .shiva-wrap {
+      position: fixed;
+      top: 48%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      pointer-events: none;
+      width: min(72vw, 560px);
+      color: var(--gold);
+      animation: shiva-shimmer 9s ease-in-out infinite;
+    }
+    @keyframes shiva-shimmer {
+      0%, 100% { opacity: 0.13; filter: none; }
+      50%       { opacity: 0.22; filter: drop-shadow(0 0 18px rgba(201,168,76,0.35)); }
+    }
+
+    /* ── PAGE WRAPPER ── */
+    .page {
+      position: relative;
+      z-index: 4;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 24px 20px;
+    }
+
+    /* ── APP NAME ── */
+    h1.app-name {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.2rem, 7vw, 4.4rem);
+      font-weight: 700;
+      letter-spacing: 0.38em;
+      text-indent: 0.38em;
+      text-align: center;
+      color: var(--gold-light);
+      text-shadow:
+        0 0 70px rgba(201, 168, 76, 0.55),
+        0 0 24px rgba(201, 168, 76, 0.30),
+        0 3px 10px rgba(0, 0, 0, 0.95);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    /* ── OM SYMBOL — breathes and slowly rotates ── */
+    .om-symbol {
+      font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif;
+      font-size: clamp(2.8rem, 8vw, 4.6rem);
+      color: var(--gold);
+      text-align: center;
+      line-height: 1;
+      margin-bottom: 6px;
+      display: inline-block;
+      animation: om-breathe 5s ease-in-out infinite, om-spin 20s linear infinite;
+    }
+    @keyframes om-breathe {
+      0%, 100% {
+        opacity: 0.72;
+        text-shadow:
+          0 0 40px rgba(201,168,76,0.7),
+          0 0 80px rgba(201,168,76,0.35),
+          0 0 120px rgba(201,168,76,0.15);
+      }
+      50% {
+        opacity: 0.90;
+        text-shadow:
+          0 0 55px rgba(201,168,76,0.95),
+          0 0 110px rgba(201,168,76,0.55),
+          0 0 180px rgba(201,168,76,0.25);
+      }
+    }
+    @keyframes om-spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ── TAGLINE ── */
+    .tagline {
+      font-family: 'EB Garamond', serif;
+      font-style: italic;
+      font-size: clamp(0.9rem, 2.4vw, 1.08rem);
+      color: var(--gold-dim);
+      letter-spacing: 0.05em;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    /* ── ASK AREA ── */
+    .ask-area {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 18px;
+    }
+
+    /* ── ASK PANEL — shared container for input & answer ── */
+    .ask-panel {
+      position: relative;
+      width: 100%;
+      height: 216px;
+      border: 2px solid rgba(201, 168, 76, 0.85);
+      border-radius: 10px;
+      overflow: hidden;
+      animation: panel-breathe 6s ease-in-out infinite;
+    }
+    @keyframes panel-breathe {
+      0%, 100% {
+        box-shadow:
+          0 0 12px  rgba(201,168,76,0.14),
+          0 0 44px  rgba(201,168,76,0.06),
+          0 0 90px  rgba(201,168,76,0.02);
+      }
+      50% {
+        box-shadow:
+          0 0 36px  rgba(201,168,76,0.55),
+          0 0 90px  rgba(201,168,76,0.28),
+          0 0 160px rgba(201,168,76,0.12);
+      }
+    }
+    .ask-panel:focus-within {
+      border-color: var(--gold);
+      animation: panel-breathe-focus 3s ease-in-out infinite;
+    }
+    @keyframes panel-breathe-focus {
+      0%, 100% {
+        box-shadow:
+          0 0 0 3px  rgba(201,168,76,0.20),
+          0 0 44px   rgba(201,168,76,0.42),
+          0 0 110px  rgba(201,168,76,0.18);
+      }
+      50% {
+        box-shadow:
+          0 0 0 6px  rgba(201,168,76,0.38),
+          0 0 80px   rgba(201,168,76,0.70),
+          0 0 180px  rgba(201,168,76,0.32);
+      }
+    }
+
+    /* ── SRI YANTRA — sacred geometry watermark ── */
+    .yantra-wrap {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.08;
+      color: var(--gold);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .yantra-wrap svg {
+      height: 145%;
+      width: auto;
+    }
+
+    /* ── INPUT VIEW ── */
+    .input-view {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      transition: opacity 0.4s ease;
+    }
+    .input-view.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: none;
+      color: var(--gold-light);
+      font-family: 'EB Garamond', serif;
+      font-size: 1.15rem;
+      padding: 18px 22px;
+      resize: none;
+      outline: none;
+      display: block;
+    }
+    textarea::placeholder {
+      color: rgba(201, 168, 76, 0.38);
+      font-style: italic;
+    }
+
+    /* ── ANSWER VIEW ── */
+    .answer-view {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      opacity: 0;
+      pointer-events: none;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding: 18px 22px 14px;
+      background: rgba(6, 3, 18, 0.68);
+      transition: opacity 0.75s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .answer-view::-webkit-scrollbar { display: none; }
+    .answer-view.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .answer-echo {
+      font-size: 0.86rem;
+      color: rgba(201,168,76,0.42);
+      font-style: italic;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(201,168,76,0.10);
+      flex-shrink: 0;
+    }
+    #answer-text {
+      font-style: italic;
+      font-size: 1.08rem;
+      line-height: 1.82;
+      color: var(--gold-light);
+      flex: 1;
+    }
+    @keyframes answer-rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .answer-loaded { animation: answer-rise 0.9s ease forwards; }
+
+    .new-q-link {
+      display: inline-block;
+      margin-top: 10px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.42);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .new-q-link:hover { color: var(--gold); }
+
+    /* ── RIPPLE RINGS — emanate from input on focus ── */
+    .ripple-ring {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 216px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(201,168,76,0.60);
+      pointer-events: none;
+      opacity: 0;
+      transform-origin: center center;
+    }
+    @keyframes ripple-out {
+      0%   { opacity: 0.55; transform: scale(1.00); }
+      100% { opacity: 0;    transform: scale(1.14); }
+    }
+    .ripple-ring.fire {
+      animation: ripple-out 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+
+    /* ── ASK BUTTON ── */
+    .ask-btn {
+      display: block;
+      margin: 14px auto 0;
+      background: var(--gold);
+      border: none;
+      border-radius: 8px;
+      color: #04020e;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.32em;
+      text-indent: 0.32em;
+      text-transform: uppercase;
+      padding: 15px 68px;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      box-shadow: 0 2px 28px rgba(201,168,76,0.32);
+    }
+    .ask-btn:hover  { background: var(--gold-light); box-shadow: 0 4px 36px rgba(201,168,76,0.48); }
+    .ask-btn:active { transform: scale(0.97); }
+    .ask-btn:disabled { opacity: 0.5; cursor: default; }
+
+    /* ── AMBIENT SOUND TOGGLE ── */
+    .sound-toggle {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      z-index: 10;
+      background: rgba(4, 2, 14, 0.82);
+      border: 1px solid rgba(201,168,76,0.22);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif;
+      font-size: 19px;
+      color: rgba(201,168,76,0.32);
+      opacity: 0;
+      pointer-events: none;
+      transition: color 0.4s, border-color 0.4s, box-shadow 0.4s, opacity 1.4s ease;
+      padding: 0;
+      line-height: 1;
+    }
+    .sound-toggle.revealed {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sound-toggle:hover {
+      color: rgba(201,168,76,0.65);
+      border-color: rgba(201,168,76,0.48);
+    }
+    .sound-toggle.active {
+      color: var(--gold);
+      border-color: rgba(201,168,76,0.70);
+      animation: sound-pulse 3.5s ease-in-out infinite;
+    }
+    @keyframes sound-pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(201,168,76,0.35), 0 0 28px rgba(201,168,76,0.12); }
+      50%       { box-shadow: 0 0 20px rgba(201,168,76,0.62), 0 0 52px rgba(201,168,76,0.26); }
+    }
+
+    /* ── FOLLOW-UP QUESTION CHIPS ── */
+    .followup-area {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      flex-shrink: 0;
+    }
+    .followup-chip {
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid rgba(201,168,76,0.45);
+      background: rgba(4,2,14,0.55);
+      color: rgba(232,208,138,0.72);
+      cursor: pointer;
+      font-family: 'EB Garamond', serif;
+      font-style: italic;
+      font-size: 0.87rem;
+      line-height: 1.5;
+      opacity: 0;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      animation: chip-appear 0.5s ease forwards;
+    }
+    .followup-chip:hover {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      background: rgba(201,168,76,0.09);
+    }
+    @keyframes chip-appear {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── DAILY INSIGHT CARD ── */
+    .card-area {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      max-width: 600px;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .card-area::-webkit-scrollbar { display: none; }
+    .insight-card {
+      width: 100%;
+      background: rgba(8, 4, 22, 0.94);
+      border: 1px solid rgba(201,168,76,0.6);
+      border-radius: 14px;
+      padding: 20px 26px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 1.8s ease, transform 1.8s ease;
+      box-shadow:
+        0 6px 48px rgba(0,0,0,0.7),
+        0 0 0 1px rgba(201,168,76,0.12),
+        inset 0 1px 0 rgba(201,168,76,0.10);
+    }
+    .insight-card.visible { opacity: 1; transform: translateY(0); }
+    .insight-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.75;
+      margin-bottom: 12px;
+    }
+    .insight-text {
+      font-style: italic;
+      font-size: 1.02rem;
+      line-height: 1.78;
+      color: rgba(232,208,138,0.82);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 520px) {
+      h1.app-name { letter-spacing: 0.22em; text-indent: 0.22em; }
+      .shiva-wrap  { width: 86vw; }
+      .insight-card { padding: 16px 14px; }
+      .ask-btn     { padding: 12px 32px; }
+    }
+    @media (max-height: 680px) {
+      .page       { padding: 16px 24px 12px; }
+      h1.app-name { font-size: clamp(1.6rem, 5.5vw, 3rem); }
+      .om-symbol  { font-size: clamp(2rem, 6vw, 3.2rem); }
+      .tagline    { margin-bottom: 14px; }
+      .ask-panel  { height: 160px; }
+      .ripple-ring { height: 160px; }
+      .ask-area   { margin-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- KAILASH BACKGROUND -->
+<div class="bg"></div>
+
+<!-- FLOATING GOLDEN PARTICLES -->
+<canvas id="particles"></canvas>
+
+<!-- GOLDEN VIGNETTE FRAME -->
+<div class="vignette"></div>
+
+<!-- MEDITATING SHIVA SILHOUETTE -->
+<div class="shiva-wrap">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 650" fill="currentColor">
+    <circle cx="200" cy="228" r="94" fill="none" stroke="currentColor" stroke-width="13"/>
+    <circle cx="200" cy="228" r="104" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.55"/>
+    <circle cx="200" cy="228" r="82" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3"/>
+    <rect x="362" y="72" width="7" height="428" rx="3.5"/>
+    <path d="M365.5 72 C361 54 358 34 365.5 18 C373 34 370 54 365.5 72Z"/>
+    <path d="M362 100 C342 84 328 60 336 42 C346 32 360 56 362 100Z"/>
+    <path d="M369 100 C389 84 403 60 395 42 C385 32 371 56 369 100Z"/>
+    <rect x="344" y="97" width="43" height="5" rx="2.5"/>
+    <rect x="359" y="192" width="13" height="7" rx="2"/>
+    <rect x="359" y="290" width="13" height="7" rx="2"/>
+    <rect x="359" y="388" width="13" height="7" rx="2"/>
+    <rect x="358" y="488" width="15" height="12" rx="3"/>
+    <path d="M146 180 C134 154,136 118,148 91 C160 62,178 48,200 46 C222 48,240 62,252 91 C264 118,266 154,254 180 Z"/>
+    <path d="M146 150 C122 146 104 164 102 188 C116 181 132 162 146 150Z"/>
+    <path d="M254 150 C278 146 296 164 298 188 C284 181 268 162 254 150Z"/>
+    <path d="M184 50 C178 33 170 16 165 2 C171 0 178 16 185 33 C187 42 187 49 184 50Z"/>
+    <path d="M200 46 C200 29 200 13 200 0 C203 13 203 29 200 46Z"/>
+    <path d="M216 50 C222 33 230 16 235 2 C229 0 222 16 215 33 C213 42 213 49 216 50Z"/>
+    <path d="M174 88 A24 24 0 0 1 224 88 A16 16 0 0 0 199 100 A16 16 0 0 0 174 88Z"/>
+    <ellipse cx="200" cy="238" rx="56" ry="63"/>
+    <path d="M183 299 L185 318 Q200 326 215 318 L217 299Z"/>
+    <path d="M132 316 C108 298,100 268,116 250 C134 230,158 238,163 261 C150 250,130 263,134 282 C137 298,154 308,132 316 Z"/>
+    <path d="M116 246 C104 224 114 200 133 196 C154 192 168 214 155 234 C144 217 122 218 116 246Z"/>
+    <path d="M105 214 C92 197 100 175 118 170 C138 165 152 185 138 204 C130 188 108 188 105 214Z"/>
+    <ellipse cx="132" cy="168" rx="11" ry="8"/>
+    <path d="M106 326 C83 352,87 396,94 428 L148 444,200 448,252 444,306 428 C313 396,317 352,294 326 C264 306,232 298,200 298 C168 298,136 306,106 326 Z"/>
+    <path d="M106 332 C80 350 58 376 48 410 C65 422 89 404 104 376 C118 350 120 330 106 332Z"/>
+    <path d="M48 410 C36 424 34 444 44 454 C54 446 56 428 56 416 C50 418 48 414 48 410Z"/>
+    <ellipse cx="40" cy="458" rx="13" ry="9" transform="rotate(22 40 458)"/>
+    <path d="M294 332 C320 350 342 376 352 410 C335 422 311 404 296 376 C282 350 280 330 294 332Z"/>
+    <path d="M352 410 C364 424 366 444 356 454 C346 446 344 428 344 416 C350 418 352 414 352 410Z"/>
+    <ellipse cx="360" cy="458" rx="13" ry="9" transform="rotate(-22 360 458)"/>
+    <circle cx="158" cy="340" r="6"/><circle cx="174" cy="330" r="6"/>
+    <circle cx="191" cy="325" r="6"/><circle cx="209" cy="325" r="6"/>
+    <circle cx="226" cy="330" r="6"/><circle cx="242" cy="340" r="6"/>
+    <path d="M76 460 C58 466 46 482 50 502 C62 495 72 478 76 460Z"/>
+    <path d="M84 480 C64 488 52 506 58 528 C72 520 80 500 84 480Z"/>
+    <path d="M72 522 C55 534 48 558 60 574 C70 564 74 542 80 528 C75 532 72 526 72 522Z"/>
+    <path d="M324 460 C342 466 354 482 350 502 C338 495 328 478 324 460Z"/>
+    <path d="M316 480 C336 488 348 506 342 528 C328 520 320 500 316 480Z"/>
+    <path d="M328 522 C345 534 352 558 340 574 C330 564 326 542 320 528 C325 532 328 526 328 522Z"/>
+    <path d="M56 462 C47 494,60 538,98 560 C136 581,166 587,200 587 C234 587,264 581,302 560 C340 538,353 494,344 462 C312 440,260 432,200 430 C140 432,88 440,56 462 Z"/>
+    <ellipse cx="94"  cy="468" rx="44" ry="23"/>
+    <ellipse cx="306" cy="468" rx="44" ry="23"/>
+    <path d="M76 568 C63 582 68 602 86 600 C76 589 76 576 86 568Z"/>
+    <path d="M116 580 C110 598 117 616 136 611 C127 601 123 588 130 580Z"/>
+    <path d="M156 585 C153 603 161 617 178 613 C170 603 168 589 173 585Z"/>
+    <path d="M200 587 C197 605 200 620 200 620 C200 620 203 605 200 587Z"/>
+    <path d="M244 585 C247 603 239 617 222 613 C230 603 232 589 227 585Z"/>
+    <path d="M284 580 C290 598 283 616 264 611 C273 601 277 588 270 580Z"/>
+    <path d="M324 568 C337 582 332 602 314 600 C324 589 324 576 314 568Z"/>
+  </svg>
+</div>
+
+<!-- AMBIENT SOUND TOGGLE -->
+<button class="sound-toggle" id="sound-toggle" onclick="toggleOm()" title="Toggle Om chanting">ॐ</button>
+
+<!-- MAIN CONTENT -->
+<div class="page">
+
+  <h1 class="app-name">SHAIVISM</h1>
+  <div class="om-symbol">ॐ</div>
+  <p class="tagline">Ask me Anything about Kashmiri Shaivism</p>
+
+  <div class="ask-area">
+
+    <div class="ask-panel" id="ask-panel">
+
+      <!-- SACRED GEOMETRY WATERMARK -->
+      <div class="yantra-wrap">
+        <svg viewBox="0 0 280 280" fill="none" stroke="currentColor" stroke-width="0.7" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer square bhupura -->
+          <rect x="6" y="6" width="268" height="268" stroke-width="1"/>
+          <rect x="16" y="16" width="248" height="248" stroke-width="0.4"/>
+          <!-- Bhupura gate marks -->
+          <line x1="110" y1="6"  x2="110" y2="16"/><line x1="170" y1="6"  x2="170" y2="16"/>
+          <line x1="274" y1="110" x2="264" y2="110"/><line x1="274" y1="170" x2="264" y2="170"/>
+          <line x1="110" y1="274" x2="110" y2="264"/><line x1="170" y1="274" x2="170" y2="264"/>
+          <line x1="6"  y1="110" x2="16"  y2="110"/><line x1="6"  y1="170" x2="16"  y2="170"/>
+          <!-- Outer circles -->
+          <circle cx="140" cy="140" r="118" stroke-width="0.9"/>
+          <circle cx="140" cy="140" r="108" stroke-width="0.4" stroke-dasharray="2 5"/>
+          <!-- 5 downward Shakti triangles (tip at bottom) -->
+          <polygon points="140,198 44,54 236,54"/>
+          <polygon points="140,184 54,64 226,64"/>
+          <polygon points="140,170 66,76 214,76"/>
+          <polygon points="140,156 80,92 200,92"/>
+          <polygon points="140,142 96,110 184,110"/>
+          <!-- 4 upward Shiva triangles (tip at top) -->
+          <polygon points="140,82 44,226 236,226"/>
+          <polygon points="140,96 54,216 226,216"/>
+          <polygon points="140,110 68,204 212,204"/>
+          <polygon points="140,124 84,190 196,190"/>
+          <!-- Inner binding circle -->
+          <circle cx="140" cy="140" r="38" stroke-width="0.6"/>
+          <!-- Bindu — central sacred point -->
+          <circle cx="140" cy="140" r="3.5" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+
+      <!-- INPUT VIEW -->
+      <div class="input-view" id="input-view">
+        <textarea id="question-input" placeholder="Type your question…"></textarea>
+      </div>
+
+      <!-- ANSWER VIEW -->
+      <div class="answer-view" id="answer-view">
+        <p class="answer-echo" id="echo-q"></p>
+        <p id="answer-text"></p>
+        <div class="followup-area" id="followup-area"></div>
+        <button class="new-q-link" onclick="resetToInput()">← ask another question</button>
+      </div>
+
+    </div>
+
+    <!-- RIPPLE RINGS — fire on input focus -->
+    <div class="ripple-ring" id="rr1"></div>
+    <div class="ripple-ring" id="rr2"></div>
+    <div class="ripple-ring" id="rr3"></div>
+
+    <button class="ask-btn" id="ask-btn" onclick="askQuestion()">ASK</button>
+  </div>
+
+  <!-- DAILY INSIGHT -->
+  <div class="card-area">
+    <div class="insight-card" id="insight-card">
+      <p class="insight-label">✦ &nbsp; Daily Insight &nbsp; ✦</p>
+      <p class="insight-text">
+        Kashmir Shaivism teaches that Shiva performs five eternal acts — creation, sustenance,
+        dissolution, concealment, and grace — not as events in time, but as the ceaseless
+        pulse of pure consciousness recognising itself. You are already the witness of all five.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   PARTICLES — drift as golden dust, then converge
+   over 30 s into the outline of seated Shiva
+══════════════════════════════════════════════════ */
+(function () {
+  const canvas  = document.getElementById('particles');
+  const ctx     = canvas.getContext('2d');
+  const TAU     = Math.PI * 2;
+  let   W = 0, H = 0;
+
+  /* ── Build Shiva outline as [svgX, svgY] points ── */
+  function buildOutline() {
+    const pts = [];
+
+    /* Sample n evenly-spaced points around an ellipse arc */
+    function arc(cx, cy, rx, ry, n, t0 = 0, t1 = TAU) {
+      for (let i = 0; i < n; i++) {
+        const t = t0 + (t1 - t0) * i / n;
+        pts.push([cx + rx * Math.cos(t), cy + ry * Math.sin(t)]);
+      }
+    }
+
+    /* Sample n evenly-spaced points along a polyline */
+    function poly(coords, n) {
+      if (coords.length < 2 || n < 1) return;
+      const segs = []; let total = 0;
+      for (let i = 0; i < coords.length - 1; i++) {
+        const dx = coords[i+1][0] - coords[i][0];
+        const dy = coords[i+1][1] - coords[i][1];
+        const len = Math.hypot(dx, dy);
+        segs.push({ x0: coords[i][0], y0: coords[i][1], dx, dy, len });
+        total += len;
+      }
+      if (total === 0) return;
+      for (let i = 0; i < n; i++) {
+        const d = i === n - 1 ? total : total * i / (n - 1);
+        let acc = 0;
+        for (let s = 0; s < segs.length; s++) {
+          if (s === segs.length - 1 || acc + segs[s].len >= d) {
+            const f = segs[s].len > 0 ? Math.min((d - acc) / segs[s].len, 1) : 0;
+            pts.push([segs[s].x0 + segs[s].dx * f, segs[s].y0 + segs[s].dy * f]);
+            break;
+          }
+          acc += segs[s].len;
+        }
+      }
+    }
+
+    /* Halo rings */
+    arc(200, 228,  94,  94, 38);
+    arc(200, 228, 104, 104, 16);
+
+    /* Head */
+    arc(200, 238, 56, 63, 26);
+
+    /* Jata — matted hair pile */
+    poly([[146,180],[134,154],[136,118],[148,91],[165,62],[184,50],
+          [200,46],[216,50],[235,62],[252,91],[264,118],[266,154],[254,180]], 18);
+    poly([[184,50],[165,2]], 4);   /* wispy strands */
+    poly([[200,46],[200,0]], 4);
+    poly([[216,50],[235,2]], 4);
+
+    /* Flowing locks */
+    poly([[146,150],[122,146],[104,164],[102,188]], 5);
+    poly([[254,150],[278,146],[296,164],[298,188]], 5);
+
+    /* Crescent moon */
+    arc(199, 88, 25, 12, 8, Math.PI, TAU);
+
+    /* Trishul — staff + prongs + crossbar */
+    poly([[365, 72],[365,500]], 20);
+    poly([[365, 72],[365, 18]],  4);
+    poly([[362,100],[336, 42]],  5);
+    poly([[369,100],[395, 42]],  5);
+    poly([[344, 97],[387, 97]],  4);
+    [[365,192],[365,290],[365,388]].forEach(p => pts.push(p)); /* bands */
+
+    /* Cobra — body coil, neck, hood, head */
+    poly([[132,316],[108,298],[100,268],[116,250],[134,230],
+          [158,238],[163,261],[130,263],[134,282]], 12);
+    poly([[116,246],[104,224],[114,200],[133,196],[154,192],[168,214],[155,234]], 7);
+    poly([[105,214],[ 92,197],[100,175],[118,170],[138,165],[152,185],[138,204]], 7);
+    arc(132, 168, 11, 8, 8);
+
+    /* Torso — shoulders + sides */
+    poly([[106,326],[160,298],[200,294],[240,298],[294,326]], 10);
+    poly([[106,326],[ 83,352],[ 87,396],[ 94,428]], 10);
+    poly([[294,326],[313,352],[317,396],[306,428]], 10);
+    poly([[183,299],[185,318],[215,318],[217,299]],  4); /* neck */
+
+    /* Arms — left */
+    poly([[106,332],[ 80,350],[ 58,376],[ 48,410]],  9);
+    poly([[ 48,410],[ 36,424],[ 34,444],[ 44,454]],  5);
+    arc(40, 458, 13, 9, 7);
+    /* Arms — right */
+    poly([[294,332],[320,350],[342,376],[352,410]],  9);
+    poly([[352,410],[364,424],[366,444],[356,454]],  5);
+    arc(360, 458, 13, 9, 7);
+
+    /* Rudraksha mala beads */
+    [[158,340],[174,330],[191,325],[209,325],[226,330],[242,340]].forEach(p => pts.push(p));
+
+    /* Tiger skin strips */
+    poly([[ 76,460],[ 58,466],[ 46,482],[ 50,502]], 4);
+    poly([[ 84,480],[ 64,488],[ 52,506],[ 58,528]], 4);
+    poly([[324,460],[342,466],[354,482],[350,502]], 4);
+    poly([[316,480],[336,488],[348,506],[342,528]], 4);
+
+    /* Lotus seat — top rim + bottom curve */
+    poly([[ 56,462],[ 88,440],[140,432],[200,430],[260,432],[312,440],[344,462]], 13);
+    poly([[ 56,462],[ 47,494],[ 60,538],[ 98,560],[136,581],[166,587],
+          [200,587],[234,587],[264,581],[302,560],[340,538],[353,494],[344,462]], 22);
+
+    /* Knee bumps */
+    arc( 94, 468, 44, 23, 10, 0, Math.PI);
+    arc(306, 468, 44, 23, 10, 0, Math.PI);
+
+    /* Lotus petals */
+    [[ 76,568],[ 63,582],[ 86,600],[116,580],[136,611],[156,585],[178,613],
+     [200,620],[244,585],[222,613],[284,580],[264,611],[324,568],[314,600]].forEach(p => pts.push(p));
+
+    return pts;
+  }
+
+  /* Build the full outline once — all particles map to one point each */
+  const OUTLINE  = buildOutline();
+  const PCOUNT   = OUTLINE.length;
+  const SVG_CX   = 220;   /* visual centre of figure in SVG space */
+  const SVG_CY   = 315;
+  const START_MS = Date.now();
+
+  /* Convert an SVG-space point to canvas-space */
+  function toCanvas(svgPt) {
+    const scale = Math.min(W * 0.72, 560) / 480;
+    return [
+      W * 0.50 + (svgPt[0] - SVG_CX) * scale,
+      H * 0.48 + (svgPt[1] - SVG_CY) * scale,
+    ];
+  }
+
+  /* Particle array — one particle per outline point */
+  let particles = null;
+
+  function initParticles() {
+    particles = OUTLINE.map(svgPt => {
+      const [tx, ty] = toCanvas(svgPt);
+      return {
+        x: Math.random() * W, y: Math.random() * H,
+        tx, ty,
+        r:     Math.random() * 1.3 + 0.5,
+        vy:    Math.random() * 0.20 + 0.06,
+        vx:    (Math.random() - 0.5) * 0.10,
+        alpha: Math.random() * 0.28 + 0.08,
+        phase: Math.random() * TAU,
+        waver: Math.random() * 0.35 + 0.12,
+      };
+    });
+  }
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    if (!particles) {
+      initParticles();
+    } else {
+      OUTLINE.forEach((svgPt, i) => {
+        [particles[i].tx, particles[i].ty] = toCanvas(svgPt);
+      });
+    }
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* blend = 0 (pure drift) → 1 (fully formed).
+     Drift for 8 s, then pull over 24 s. */
+  function getBlend(sec) {
+    if (sec < 8)   return 0;
+    if (sec >= 32) return 1;
+    return Math.pow((sec - 8) / 24, 1.5);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const now     = Date.now();
+    const T       = now / 1000;
+    const elapsed = (now - START_MS) / 1000;
+    const blend   = getBlend(elapsed);
+    const formed  = blend >= 1;
+
+    particles.forEach(p => {
+      let px, py, alpha, radius;
+
+      if (formed) {
+        /* Shimmer gently around target */
+        px     = p.tx + Math.sin(T * 0.72 + p.phase) * 1.8;
+        py     = p.ty + Math.cos(T * 0.55 + p.phase * 1.3) * 1.8;
+        alpha  = (0.45 + 0.55 * Math.sin(T * 0.95 + p.phase)) * 0.72;
+        radius = p.r  * (1.0 + 0.35 * Math.sin(T * 0.80 + p.phase));
+      } else {
+        /* Drift + increasing gravitational pull toward target */
+        const drift = Math.pow(1 - blend, 1.4);   /* 1 → 0 */
+        const pull  = blend * blend * 0.11;        /* 0 → 0.11 */
+
+        p.x += (p.vx + Math.sin(T * p.waver + p.phase) * 0.28) * drift;
+        p.y -= p.vy * drift;
+
+        /* Boundary wrap only while mostly drifting */
+        if (drift > 0.5) {
+          if (p.y < -8)  { p.y = H + 8; p.x = Math.random() * W; }
+          if (p.x < 0)     p.x = W;
+          if (p.x > W)     p.x = 0;
+        }
+
+        /* Attract toward target */
+        p.x += (p.tx - p.x) * pull;
+        p.y += (p.ty - p.y) * pull;
+
+        px     = p.x;
+        py     = p.y;
+        alpha  = Math.min(p.alpha * (0.48 + 0.52 * Math.sin(T * 0.55 + p.phase)) * (1 + blend * 0.8), 0.82);
+        radius = p.r;
+      }
+
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, TAU);
+      ctx.fillStyle = `rgba(201,168,76,${alpha.toFixed(3)})`;
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ══════════════════════════════════════════════════
+   RIPPLE — golden light emanates on input focus
+══════════════════════════════════════════════════ */
+document.getElementById('question-input').addEventListener('focus', fireRipple);
+document.getElementById('question-input').addEventListener('click', fireRipple);
+
+let rippleCooldown = false;
+function fireRipple() {
+  if (rippleCooldown) return;
+  rippleCooldown = true;
+  setTimeout(() => { rippleCooldown = false; }, 1400);
+
+  ['rr1', 'rr2', 'rr3'].forEach((id, i) => {
+    const ring = document.getElementById(id);
+    ring.classList.remove('fire');
+    void ring.offsetWidth;
+    setTimeout(() => ring.classList.add('fire'), i * 260);
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   DAILY INSIGHT
+══════════════════════════════════════════════════ */
+setTimeout(() => {
+  document.getElementById('insight-card').classList.add('visible');
+}, 7000);
+setTimeout(() => {
+  document.getElementById('sound-toggle').classList.add('revealed');
+}, 3000);
+
+/* ══════════════════════════════════════════════════
+   ASK / ANSWER
+══════════════════════════════════════════════════ */
+async function askQuestion() {
+  const input   = document.getElementById('question-input');
+  const q       = input.value.trim();
+  if (!q) return;
+
+  const inputView  = document.getElementById('input-view');
+  const answerView = document.getElementById('answer-view');
+  const echoEl     = document.getElementById('echo-q');
+  const textEl     = document.getElementById('answer-text');
+  const btn        = document.getElementById('ask-btn');
+
+  echoEl.textContent   = '“' + q + '”';
+  textEl.className     = '';
+  textEl.textContent   = 'Consulting the tradition…';
+  textEl.style.opacity = '0.5';
+
+  inputView.classList.add('hidden');
+  answerView.classList.add('visible');
+  btn.disabled    = true;
+  btn.textContent = 'SEEKING…';
+
+  try {
+    const res  = await fetch('/ask', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ question: q }),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    textEl.style.opacity = '1';
+    textEl.textContent   = data.answer;
+    textEl.classList.add('answer-loaded');
+    renderFollowUps(q, data.answer);
+  } catch {
+    textEl.style.opacity = '0.7';
+    textEl.textContent   = 'A moment of stillness — please try again.';
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'ASK';
+  }
+}
+
+function resetToInput() {
+  const input      = document.getElementById('question-input');
+  const inputView  = document.getElementById('input-view');
+  const answerView = document.getElementById('answer-view');
+  const textEl     = document.getElementById('answer-text');
+  answerView.classList.remove('visible');
+  inputView.classList.remove('hidden');
+  textEl.className   = '';
+  textEl.textContent = '';
+  document.getElementById('followup-area').innerHTML = '';
+  input.value        = '';
+  setTimeout(() => input.focus(), 440);
+}
+
+document.getElementById('question-input').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askQuestion(); }
+});
+
+/* ══════════════════════════════════════════════════
+   OM CHANTING — Web Audio API, no external files
+══════════════════════════════════════════════════ */
+let audioCtx    = null;
+let masterGain  = null;
+let omOscs      = [];
+let omPlaying   = false;
+
+function toggleOm() {
+  const btn = document.getElementById('sound-toggle');
+
+  if (omPlaying) {
+    omPlaying = false;
+    btn.classList.remove('active');
+    if (masterGain) {
+      const t = audioCtx.currentTime;
+      masterGain.gain.setValueAtTime(masterGain.gain.value, t);
+      masterGain.gain.linearRampToValueAtTime(0, t + 2.2);
+      setTimeout(() => {
+        omOscs.forEach(n => { try { n.stop(); } catch (e) {} });
+        omOscs = [];
+      }, 2300);
+    }
+    return;
+  }
+
+  omPlaying = true;
+  btn.classList.add('active');
+
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  /* Master gain — fades in slowly */
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(0.13, audioCtx.currentTime + 3);
+  masterGain.connect(audioCtx.destination);
+
+  /* Warm low-pass filter */
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 540;
+  filter.Q.value = 1.4;
+  filter.connect(masterGain);
+
+  /* Subtle delay for temple spaciousness */
+  const delay   = audioCtx.createDelay(1.2);
+  delay.delayTime.value = 0.32;
+  const fbGain  = audioCtx.createGain();  fbGain.gain.value = 0.26;
+  const wetGain = audioCtx.createGain(); wetGain.gain.value = 0.16;
+  delay.connect(fbGain);
+  fbGain.connect(delay);
+  delay.connect(wetGain);
+  wetGain.connect(masterGain);
+
+  function osc(freq, amp, type = 'sine') {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = amp;
+    o.connect(g);
+    g.connect(filter);
+    g.connect(delay);
+    o.start();
+    return o;
+  }
+
+  /* Om drone: 136.1 Hz (cosmic tuning) + harmonics + chorus detune */
+  const o1 = osc(136.1, 1.00);
+  const o2 = osc(272.2, 0.26);        /* 2nd harmonic */
+  const o3 = osc(408.3, 0.09);        /* 3rd harmonic */
+  const o4 = osc(136.6, 0.16);        /* chorus shimmer */
+  const o5 = osc(135.6, 0.12);        /* warm beating */
+
+  /* Slow tremolo — breathing rhythm */
+  const lfo     = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.frequency.value  = 0.10;
+  lfoGain.gain.value   = 0.022;
+  lfo.connect(lfoGain);
+  lfoGain.connect(masterGain.gain);
+  lfo.start();
+
+  omOscs = [o1, o2, o3, o4, o5, lfo];
+}
+async function renderFollowUps(question, answer) {
+  const container = document.getElementById('followup-area');
+  if (!container) return;
+  container.innerHTML = '';
+
+  try {
+    const res = await fetch('/followups', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, answer }),
+    });
+    const data = await res.json();
+    if (data.error || !Array.isArray(data.followups)) return;
+
+    data.followups.forEach((s, i) => {
+      const chip = document.createElement('div');
+      chip.className = 'followup-chip';
+      chip.style.animationDelay = `${i * 0.15}s`;
+      chip.textContent = s;
+      chip.onclick = () => {
+        const input = document.getElementById('question-input');
+        resetToInput();
+        input.value = s;
+        setTimeout(() => askQuestion(), 50);
+      };
+      container.appendChild(chip);
+    });
+  } catch {
+    // Follow-ups are an enhancement — fail silently
+  }
+}
+</script>
+</body>
+</html>
