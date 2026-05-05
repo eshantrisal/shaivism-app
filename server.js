@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -19,6 +19,19 @@ const systemPrompt = readFileSync(join(__dirname, 'system-prompt.txt'), 'utf-8')
 const knowledgeBase = readFileSync(join(__dirname, 'knowledge-base.txt'), 'utf-8').trim();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+const CACHE_FILE = join(__dirname, 'cache.json');
+let cache = {};
+try {
+  cache = JSON.parse(readFileSync(CACHE_FILE, 'utf-8'));
+  console.log(`Cache loaded: ${Object.keys(cache).length} entries`);
+} catch {
+  console.log('No cache file found — starting fresh');
+}
+
+function saveCache() {
+  writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
+}
 
 async function generateWithRetry(question, retries = 3) {
   for (let attempt = 0; attempt < retries; attempt++) {
@@ -49,12 +62,21 @@ app.post('/ask', async (req, res) => {
     return res.status(400).json({ error: 'No question provided.' });
   }
   try {
+    const key = question.trim().toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+    if (cache[key]) {
+      console.log('cache hit:', question.trim());
+      return res.json(cache[key]);
+    }
+    console.log('api call:', question.trim());
     const result = await generateWithRetry(question.trim());
     const parsed = JSON.parse(result.response.text() || '{}');
-    res.json({
+    const payload = {
       answer: parsed.answer || 'No response received.',
       followup: parsed.followup || null,
-    });
+    };
+    cache[key] = payload;
+    saveCache();
+    res.json(payload);
   } catch (err) {
     console.error('Gemini API error:', err?.message ?? err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
