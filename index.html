@@ -490,6 +490,106 @@
       .ripple-ring { height: 160px; }
       .ask-area   { margin-bottom: 10px; }
     }
+  /* MOBILE-FIRST IMPROVEMENTS ADDED */
+
+html, body {
+height: auto;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+
+.page {
+padding: 16px 14px 24px;
+max-width: 100%;
+}
+
+.ask-area {
+width: 100%;
+max-width: 100%;
+}
+
+.ask-panel {
+width: 100%;
+height: auto;
+min-height: 160px;
+}
+
+textarea {
+font-size: 18px;
+line-height: 1.6;
+}
+
+.answer-view {
+position: relative;
+overflow: visible;
+max-height: none;
+font-size: 18px;
+}
+
+#answer-text {
+font-size: 18px;
+}
+
+.ask-btn {
+width: 100%;
+min-height: 52px;
+font-size: 1rem;
+letter-spacing: 0.2em;
+}
+
+button {
+min-height: 48px;
+}
+
+.followup-chip {
+min-height: 44px;
+display: flex;
+align-items: center;
+}
+
+.card-area {
+margin-top: 16px;
+}
+
+.insight-card {
+padding: 12px 14px;
+font-size: 0.95rem;
+}
+
+.insight-text {
+font-size: 0.95rem;
+line-height: 1.6;
+}
+
+/* Smooth scrolling */
+html {
+scroll-behavior: smooth;
+}
+
+/* Footer */
+.footer {
+text-align: center;
+font-size: 0.7rem;
+color: rgba(201,168,76,0.6);
+margin-top: 20px;
+padding-bottom: 10px;
+}
+
+/* Responsive tweaks for 375px - 430px */
+@media (max-width: 430px) {
+h1.app-name {
+font-size: 2rem;
+letter-spacing: 0.2em;
+}
+
+.om-symbol {
+font-size: 2.4rem;
+}
+
+.tagline {
+font-size: 0.85rem;
+}
+}
   </style>
 </head>
 <body>
@@ -1089,5 +1189,9 @@ async function renderFollowUps(question, answer) {
   }
 }
 </script>
+<div class="footer">
+Shaivism is a vibe coding project by Eshan Trisal. 
+For feedback, write to trisaleshan@gmail.com
+</div>
 </body>
 </html>
