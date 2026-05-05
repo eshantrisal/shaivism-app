@@ -77,5 +77,9 @@ app.post('/followups', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Shaivism app running at http://localhost:${PORT}`));
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Shaivism app running at http://localhost:${PORT}`));
+}
+
+export default app;
