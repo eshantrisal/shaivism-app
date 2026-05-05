@@ -1059,7 +1059,7 @@ async function askQuestion() {
     textEl.style.opacity = '1';
     textEl.textContent   = data.answer;
     textEl.classList.add('answer-loaded');
-    renderFollowUps(q, data.answer);
+    renderFollowUp(data.followup);
   } catch {
     textEl.style.opacity = '0.7';
     textEl.textContent   = 'A moment of stillness — please try again.';
@@ -1173,36 +1173,20 @@ function toggleOm() {
 
   omOscs = [o1, o2, o3, o4, o5, lfo];
 }
-async function renderFollowUps(question, answer) {
+function renderFollowUp(question) {
   const container = document.getElementById('followup-area');
-  if (!container) return;
+  if (!container || !question) return;
   container.innerHTML = '';
-
-  try {
-    const res = await fetch('/followups', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question, answer }),
-    });
-    const data = await res.json();
-    if (data.error || !Array.isArray(data.followups)) return;
-
-    data.followups.forEach((s, i) => {
-      const chip = document.createElement('div');
-      chip.className = 'followup-chip';
-      chip.style.animationDelay = `${i * 0.15}s`;
-      chip.textContent = s;
-      chip.onclick = () => {
-        const input = document.getElementById('question-input');
-        resetToInput();
-        input.value = s;
-        setTimeout(() => askQuestion(), 50);
-      };
-      container.appendChild(chip);
-    });
-  } catch {
-    // Follow-ups are an enhancement — fail silently
-  }
+  const chip = document.createElement('div');
+  chip.className = 'followup-chip';
+  chip.textContent = question;
+  chip.onclick = () => {
+    const input = document.getElementById('question-input');
+    resetToInput();
+    input.value = question;
+    setTimeout(() => askQuestion(), 50);
+  };
+  container.appendChild(chip);
 }
 </script>
 <div class="footer">

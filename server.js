@@ -24,7 +24,8 @@ async function generateWithRetry(question, retries = 3) {
   for (let attempt = 0; attempt < retries; attempt++) {
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
-      systemInstruction: `${systemPrompt}\n\nCurated Knowledge Base:\n\n${knowledgeBase}`,
+      systemInstruction: `${systemPrompt}\n\nCurated Knowledge Base:\n\n${knowledgeBase}\n\nYou MUST respond with valid JSON only, in this exact format: {"answer": "<your full answer>", "followup": "<one punchy follow-up question, max 8 words, curiosity-sparking>"}. No markdown, no extra text.`,
+      generationConfig: { responseMimeType: 'application/json' },
     });
     try {
       return await model.generateContent(question);
@@ -49,31 +50,14 @@ app.post('/ask', async (req, res) => {
   }
   try {
     const result = await generateWithRetry(question.trim());
-    const text = result.response.text() || 'No response received.';
-    res.json({ answer: text });
+    const parsed = JSON.parse(result.response.text() || '{}');
+    res.json({
+      answer: parsed.answer || 'No response received.',
+      followup: parsed.followup || null,
+    });
   } catch (err) {
     console.error('Gemini API error:', err?.message ?? err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
-  }
-});
-
-app.post('/followups', async (req, res) => {
-  const { question, answer } = req.body;
-  if (!question?.trim() || !answer?.trim()) {
-    return res.status(400).json({ error: 'Missing question or answer.' });
-  }
-  try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const prompt = `A seeker asked about Kashmir Shaivism: "${question.trim()}"\n\nThe teacher responded: "${answer.trim()}"\n\nSuggest exactly 3 follow-up questions a curious seeker might naturally ask next, deepening this exploration of Kashmir Shaivism. Each question should feel like a genuine next step — not generic, but specific to what was just discussed. Return only a valid JSON array of 3 short question strings. No markdown, no explanation, just the JSON array.`;
-    const result = await model.generateContent(prompt);
-    let text = result.response.text().trim();
-    text = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
-    const followups = JSON.parse(text);
-    if (!Array.isArray(followups) || followups.length === 0) throw new Error('Invalid response format');
-    res.json({ followups: followups.slice(0, 3) });
-  } catch (err) {
-    console.error('Follow-up error:', err?.message ?? err);
-    res.status(500).json({ error: 'Could not generate follow-up questions.' });
   }
 });
 
