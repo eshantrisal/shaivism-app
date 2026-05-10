@@ -370,6 +370,33 @@
     .ask-btn:active { transform: scale(0.97); }
     .ask-btn:disabled { opacity: 0.5; cursor: default; }
 
+    /* ── OM CHANT BUTTON ── */
+    .om-chant-btn {
+      display: block;
+      margin: 20px auto 0;
+      background: transparent;
+      border: 1.5px solid rgba(201,168,76,0.55);
+      border-radius: 24px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-indent: 0.22em;
+      padding: 10px 28px;
+      cursor: pointer;
+      transition: border-color 0.3s, box-shadow 0.3s, color 0.3s;
+    }
+    .om-chant-btn:hover {
+      border-color: rgba(201,168,76,0.80);
+      color: var(--gold-light);
+    }
+    .om-chant-btn.active {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      animation: sound-pulse 3.5s ease-in-out infinite;
+    }
+
     /* ── AMBIENT SOUND TOGGLE ── */
     .sound-toggle {
       position: fixed;
@@ -611,9 +638,6 @@
   </svg>
 </div>
 
-<!-- AMBIENT SOUND TOGGLE -->
-<button class="sound-toggle" id="sound-toggle" onclick="toggleOm()" title="Toggle Om chanting">ॐ</button>
-
 <!-- MAIN CONTENT -->
 <div class="page">
 
@@ -687,21 +711,8 @@
       <div id="suggested-questions"></div>
     </div>
   </div>
-  </div>
 
-<button onclick="toggleOm()" style="
-  display: block;
-  margin: 16px auto;
-  background: transparent;
-  border: 1px solid rgba(201,168,76,0.5);
-  border-radius: 20px;
-  color: rgba(232,208,138,0.8);
-  font-family: 'Cinzel', serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  padding: 8px 20px;
-  cursor: pointer;
-">ॐ &nbsp; DEEP OM CHANTING</button>
+  <button id="om-chant-btn" class="om-chant-btn" onclick="toggleOm()">ॐ &nbsp; DEEP OM CHANTING</button>
 
 </div>
 
@@ -963,9 +974,6 @@ function fireRipple() {
 /* ══════════════════════════════════════════════════
    DAILY INSIGHT / SUGGESTED QUESTIONS
 ══════════════════════════════════════════════════ */
-setTimeout(() => {
-  document.getElementById('sound-toggle').classList.add('revealed');
-}, 3000);
 
 
 /* ══════════════════════════════════════════════════
@@ -1094,11 +1102,12 @@ let omOscs      = [];
 let omPlaying   = false;
 
 function toggleOm() {
-  const btn = document.getElementById('sound-toggle');
+  const btn = document.getElementById('om-chant-btn');
 
   if (omPlaying) {
     omPlaying = false;
     btn.classList.remove('active');
+    btn.textContent = 'ॐ   DEEP OM CHANTING';
     if (masterGain) {
       const t = audioCtx.currentTime;
       masterGain.gain.setValueAtTime(masterGain.gain.value, t);
@@ -1113,6 +1122,7 @@ function toggleOm() {
 
   omPlaying = true;
   btn.classList.add('active');
+  btn.textContent = 'ॐ   STOP CHANTING';
 
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
