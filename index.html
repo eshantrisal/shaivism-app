@@ -20,7 +20,7 @@
     }
 
     html, body {
-      height: 100vh;
+      min-height: 100vh;
       overflow-y: auto;
       background: #04020e;
       font-family: 'EB Garamond', Georgia, serif;
@@ -96,12 +96,11 @@
     .page {
       position: relative;
       z-index: 4;
-      height: 100vh;
-      overflow: visible;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 24px 20px;
+      padding: 32px 24px 160px;
     }
 
     /* ── APP NAME ── */
@@ -372,9 +371,14 @@
 
     /* ── OM CHANT BUTTON ── */
     .om-chant-btn {
-      display: block;
-      margin: 20px auto 0;
-      background: transparent;
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 25;
+      white-space: nowrap;
+      background: rgba(4, 2, 14, 0.85);
+      backdrop-filter: blur(6px);
       border: 1.5px solid rgba(201,168,76,0.55);
       border-radius: 24px;
       color: var(--gold);
@@ -477,14 +481,9 @@
 
     /* ── DAILY INSIGHT CARD ── */
     .card-area {
-      flex: 1;
-      min-height: 0;
       width: 100%;
       max-width: 600px;
-      overflow-y: auto;
-      scrollbar-width: none;
     }
-    .card-area::-webkit-scrollbar { display: none; }
     .insight-card {
       width: 100%;
       background: rgba(8, 4, 22, 0.94);
@@ -524,7 +523,7 @@
       .ask-btn     { padding: 12px 32px; }
     }
     @media (max-height: 680px) {
-      .page       { padding: 16px 24px 12px; }
+      .page       { padding: 16px 24px 160px; }
       h1.app-name { font-size: clamp(1.6rem, 5.5vw, 3rem); }
       .om-symbol  { font-size: clamp(2rem, 6vw, 3.2rem); }
       .tagline    { margin-bottom: 14px; }
@@ -538,7 +537,7 @@
 
     /* ── FOOTER ── */
     .footer {
-      position: sticky;
+      position: fixed;
       bottom: 0;
       width: 100%;
       text-align: center;
@@ -555,7 +554,7 @@
 
     /* ── MOBILE LAYOUT OVERRIDES ── */
     @media (max-width: 600px) {
-      .page        { padding: 16px 14px 24px; }
+      .page        { padding: 16px 14px 160px; }
       .ask-area    { max-width: 100%; }
       .ask-panel   { height: auto; min-height: 160px; }
       .answer-view { position: relative; overflow: visible; max-height: none; }
