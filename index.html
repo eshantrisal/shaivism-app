@@ -1031,14 +1031,25 @@ async function askQuestion() {
   btn.disabled    = true;
   btn.textContent = 'SEEKING…';
 
-  try {
-    const res  = await fetch('/ask', {
+  async function fetchAnswer() {
+    const res = await fetch('/ask', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ question: qRaw }),
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
+    return data;
+  }
+
+  try {
+    let data;
+    try {
+      data = await fetchAnswer();
+    } catch {
+      await new Promise(r => setTimeout(r, 1000));
+      data = await fetchAnswer();
+    }
     textEl.style.opacity = '1';
     textEl.textContent   = data.answer;
     textEl.classList.add('answer-loaded');

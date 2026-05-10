@@ -88,19 +88,12 @@ try {
 }
 
 function saveCache() {
-  writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
-}
-
-// Warmup ping — primes the connection so the first real request doesn't cold-start
-(async () => {
   try {
-    console.log('Warming up Gemini model…');
-    await model.generateContent('ready');
-    console.log('Model ready.');
-  } catch (err) {
-    console.warn('Warmup ping failed (non-fatal):', err?.message);
+    writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
+  } catch {
+    // read-only filesystem on serverless — cache persists in memory only
   }
-})();
+}
 
 async function generateWithRetry(question, retries = 3) {
   const context = extractRelevantContext(question);
@@ -110,12 +103,8 @@ async function generateWithRetry(question, retries = 3) {
     try {
       return await model.generateContent(prompt);
     } catch (err) {
-      const is503 = err?.status === 503 ||
-                    err?.message?.includes('503') ||
-                    err?.message?.toLowerCase().includes('service unavailable') ||
-                    err?.message?.toLowerCase().includes('overloaded');
-      if (is503 && attempt < retries - 1) {
-        await new Promise(r => setTimeout(r, (attempt + 1) * 1500));
+      if (attempt < retries - 1) {
+        await new Promise(r => setTimeout(r, 1000));
         continue;
       }
       throw err;
