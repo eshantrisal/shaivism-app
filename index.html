@@ -305,6 +305,29 @@
     }
     .answer-loaded { animation: answer-rise 0.9s ease forwards; }
 
+    /* ── SHARE BUTTON ── */
+    .share-btn {
+      display: inline-block;
+      align-self: flex-start;
+      margin-top: 14px;
+      background: transparent;
+      border: 1px solid rgba(201,168,76,0.45);
+      border-radius: 20px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      padding: 5px 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .share-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
     .new-q-link {
       display: inline-block;
       margin-top: 14px;
@@ -689,6 +712,7 @@
       <div class="answer-view" id="answer-view">
         <p class="answer-echo" id="echo-q"></p>
         <p id="answer-text"></p>
+        <button id="share-btn" class="share-btn" onclick="shareAnswer()">✦ SHARE</button>
         <div class="followup-area" id="followup-area"></div>
         <button class="new-q-link" onclick="resetToInput()">← ask another question</button>
       </div>
@@ -1083,6 +1107,24 @@ function showAnswer(answer, originalQuestion) {
 
   btn.disabled = false;
   btn.textContent = 'ASK';
+}
+
+async function shareAnswer() {
+  const question = document.getElementById('echo-q').textContent.replace(/^"|"$/g, '');
+  const answer   = document.getElementById('answer-text').textContent;
+  const text     = `${question}\n\n${answer}\n\nExplore more at shaivism-app.vercel.app`;
+  const btn      = document.getElementById('share-btn');
+
+  if (navigator.share) {
+    try { await navigator.share({ text }); } catch { /* user cancelled */ }
+  } else {
+    try {
+      await navigator.clipboard.writeText(text);
+      const orig = btn.textContent;
+      btn.textContent = 'COPIED!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    } catch { /* clipboard unavailable */ }
+  }
 }
 
 function resetToInput() {
