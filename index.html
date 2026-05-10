@@ -392,6 +392,27 @@
     .ask-btn:active { transform: scale(0.97); }
     .ask-btn:disabled { opacity: 0.5; cursor: default; }
 
+    /* ── SHARE APP BUTTON ── */
+    .share-app-btn {
+      display: block;
+      margin: 14px auto 0;
+      background: transparent;
+      border: 1px solid rgba(201,168,76,0.20);
+      border-radius: 20px;
+      color: rgba(201,168,76,0.55);
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .share-app-btn:hover {
+      border-color: rgba(201,168,76,0.45);
+      color: var(--gold);
+    }
+
     /* ── OM CHANT BUTTON ── */
     .om-chant-btn {
       position: fixed;
@@ -734,6 +755,8 @@
       <div id="suggested-questions"></div>
     </div>
   </div>
+
+  <button class="share-app-btn" onclick="shareApp()">↗ SHARE THIS APP</button>
 
   <button id="om-chant-btn" class="om-chant-btn" onclick="toggleOm()">ॐ &nbsp; DEEP OM CHANTING</button>
 
@@ -1107,6 +1130,16 @@ function showAnswer(answer, originalQuestion) {
 
   btn.disabled = false;
   btn.textContent = 'ASK';
+}
+
+async function shareApp() {
+  const url  = 'https://shaivism-app.vercel.app';
+  const text = 'Explore Kashmir Shaivism — shaivism-app.vercel.app';
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Shaivism', text, url }); } catch { }
+  } else {
+    navigator.clipboard.writeText(url).catch(() => {});
+  }
 }
 
 async function shareAnswer() {
