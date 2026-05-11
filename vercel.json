@@ -9,7 +9,7 @@
       "src": "server.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["system-prompt.txt", "knowledge-base.txt"]
+        "includeFiles": ["system-prompt.txt", "knowledge-base.txt", "nebula.png"]
       }
     }
   ],

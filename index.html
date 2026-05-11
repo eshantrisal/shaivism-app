@@ -621,10 +621,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
-      transition: opacity 0.9s ease;
+      transition: opacity 1.5s ease;
       overflow: hidden;
     }
     #welcome-overlay::before {
@@ -659,6 +658,24 @@
     @keyframes mantra-glow {
       0%, 100% { opacity: 0.82; text-shadow: 0 0 40px rgba(201,168,76,0.85), 0 0 80px rgba(201,168,76,0.40); }
       50%       { opacity: 1.00; text-shadow: 0 0 60px rgba(201,168,76,1.00), 0 0 120px rgba(201,168,76,0.65), 0 0 200px rgba(201,168,76,0.25); }
+    }
+
+    .ov-enter-wrap {
+      position: absolute;
+      bottom: 13%;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 2;
+      cursor: pointer;
+      transition: opacity 0.6s ease;
+    }
+    .ov-enter-wrap.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     .wg {
@@ -697,22 +714,32 @@
 
     .tap-enter {
       font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif;
-      font-size: clamp(1.1rem, 3vw, 1.55rem);
+      font-size: clamp(1.4rem, 3.8vw, 2.0rem);
       color: var(--gold);
       opacity: 0;
-      line-height: 1.5;
-      text-shadow: 0 0 20px rgba(201,168,76,0.55);
+      line-height: 1.4;
+      text-shadow: 0 0 24px rgba(201,168,76,0.60);
     }
     .tap-enter.pulsing {
-      animation: tap-fade-in 0.9s ease forwards, tap-pulse 2.8s ease-in-out 0.9s infinite;
+      animation: tap-fade-in 1.2s ease forwards, tap-pulse 2.8s ease-in-out 1.2s infinite;
     }
     @keyframes tap-fade-in {
       from { opacity: 0; }
-      to   { opacity: 0.72; }
+      to   { opacity: 0.80; }
     }
     @keyframes tap-pulse {
-      0%, 100% { opacity: 0.42; text-shadow: 0 0 20px rgba(201,168,76,0.45); }
-      50%       { opacity: 0.95; text-shadow: 0 0 36px rgba(201,168,76,0.80); }
+      0%, 100% { opacity: 0.48; text-shadow: 0 0 24px rgba(201,168,76,0.50); }
+      50%       { opacity: 0.96; text-shadow: 0 0 42px rgba(201,168,76,0.85); }
+    }
+
+    .tap-hint {
+      font-family: 'EB Garamond', serif;
+      font-style: italic;
+      font-size: clamp(0.78rem, 2vw, 0.95rem);
+      color: rgba(232, 208, 138, 0.52);
+      letter-spacing: 0.08em;
+      opacity: 0;
+      animation: tap-fade-in 1.8s ease 1.5s forwards;
     }
   </style>
 </head>
@@ -749,8 +776,9 @@
     <p class="anim-line wl-med">A remembering.</p>
   </div>
 
-  <div id="wg4" class="wg">
-    <span class="tap-enter">✦ स्पर्श करें ✦</span>
+  <div id="ov-enter" class="ov-enter-wrap">
+    <span class="tap-enter pulsing">✦ स्पर्श करें ✦</span>
+    <span class="tap-hint">touch here</span>
   </div>
 
 </div>
@@ -1500,7 +1528,8 @@ renderSuggestedQuestions();
    WELCOME OVERLAY
 ══════════════════════════════════════════════════ */
 (function () {
-  var overlay = document.getElementById('welcome-overlay');
+  var overlay  = document.getElementById('welcome-overlay');
+  var enterBtn = document.getElementById('ov-enter');
   if (!overlay) return;
 
   if (sessionStorage.getItem('ks_welcomed')) {
@@ -1542,22 +1571,16 @@ renderSuggestedQuestions();
       o.start(); tOscs.push(o);
     }
 
-    /* Sa — root, three voices slightly detuned for natural beating */
     drone(136.1,  1.00,   0);
     drone(136.1,  0.44,   4);
     drone(136.1,  0.28,  -5);
-    /* Pa — fifth string */
     drone(204.15, 0.32,   0);
     drone(204.15, 0.16,   3);
-    /* Sa — octave */
     drone(272.2,  0.20,   0);
     drone(272.2,  0.10,   4);
-    /* Mandra Sa — sub-octave depth */
     drone(68.05,  0.52,   0);
-    /* Upper partial shimmer */
     drone(408.3,  0.05,   0);
 
-    /* Slow LFO tremolo — breathing pulse */
     var lfo = tCtx.createOscillator(), lfoG = tCtx.createGain();
     lfo.frequency.value = 0.07;
     lfoG.gain.value     = 0.016;
@@ -1576,23 +1599,18 @@ renderSuggestedQuestions();
     }, fadeSec * 1000 + 100);
   }
 
-  /* ── Overlay sequencing ── */
-  var done = false;
-
+  /* ── Auto-dismiss after last group ── */
   function dismiss() {
-    if (done) return;
-    done = true;
-    stopTanpura(0.9);
+    stopTanpura(3.0);
     overlay.classList.add('ov-exit');
     setTimeout(function () {
       overlay.remove();
       sessionStorage.setItem('ks_welcomed', '1');
-    }, 950);
+    }, 1600);
   }
 
-  overlay.addEventListener('click', dismiss);
-
-  var groups      = ['wg1','wg2','wg3','wg4'].map(function(id){ return document.getElementById(id); });
+  /* ── Text group sequencing ── */
+  var groups      = ['wg1','wg2','wg3'].map(function(id){ return document.getElementById(id); });
   var LINE_STAGGER  = 460;
   var LINE_DURATION = 1500;
   var GROUP_HOLD    = 2600;
@@ -1600,10 +1618,12 @@ renderSuggestedQuestions();
   var activeEl = null;
 
   function runGroup(i) {
-    if (done || i >= groups.length) return;
+    if (i >= groups.length) {
+      dismiss();
+      return;
+    }
 
-    var group  = groups[i];
-    var isLast = i === groups.length - 1;
+    var group = groups[i];
 
     if (activeEl) {
       var prev = activeEl;
@@ -1619,21 +1639,12 @@ renderSuggestedQuestions();
     var showDelay = activeEl ? GROUP_FADEOUT + 120 : 0;
 
     setTimeout(function () {
-      if (done) return;
       group.classList.add('wg-active');
       activeEl = group;
-
-      if (isLast) {
-        startTanpura();
-        var tap = group.querySelector('.tap-enter');
-        if (tap) tap.classList.add('pulsing');
-        return;
-      }
 
       var lines = group.querySelectorAll('.anim-line');
       lines.forEach(function (line, j) {
         setTimeout(function () {
-          if (done) return;
           line.classList.add('line-in');
         }, j * LINE_STAGGER);
       });
@@ -1643,7 +1654,15 @@ renderSuggestedQuestions();
     }, showDelay);
   }
 
-  setTimeout(function () { runGroup(0); }, 700);
+  /* ── Enter button tap triggers everything ── */
+  var entered = false;
+  enterBtn.addEventListener('click', function () {
+    if (entered) return;
+    entered = true;
+    enterBtn.classList.add('hidden');
+    startTanpura();
+    setTimeout(function () { runGroup(0); }, 400);
+  });
 })();
 </script>
 <div class="footer">
