@@ -616,7 +616,7 @@
     #welcome-overlay {
       position: fixed;
       inset: 0;
-      background: #000;
+      background: url('nebula.png') center / cover no-repeat, #000;
       z-index: 500;
       display: flex;
       align-items: center;
@@ -625,36 +625,67 @@
       user-select: none;
       -webkit-user-select: none;
       transition: opacity 0.9s ease;
+      overflow: hidden;
+    }
+    #welcome-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.60);
+      z-index: 0;
     }
     #welcome-overlay.ov-exit {
       opacity: 0;
       pointer-events: none;
     }
 
+    .ov-mantra {
+      position: absolute;
+      top: 9%;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif;
+      font-size: clamp(2.0rem, 5.5vw, 3.6rem);
+      color: var(--gold);
+      text-shadow:
+        0 0 40px rgba(201,168,76,0.90),
+        0 0 80px rgba(201,168,76,0.50),
+        0 0 140px rgba(201,168,76,0.22);
+      animation: mantra-glow 4s ease-in-out infinite;
+      z-index: 1;
+      pointer-events: none;
+    }
+    @keyframes mantra-glow {
+      0%, 100% { opacity: 0.82; text-shadow: 0 0 40px rgba(201,168,76,0.85), 0 0 80px rgba(201,168,76,0.40); }
+      50%       { opacity: 1.00; text-shadow: 0 0 60px rgba(201,168,76,1.00), 0 0 120px rgba(201,168,76,0.65), 0 0 200px rgba(201,168,76,0.25); }
+    }
+
     .wg {
       position: absolute;
       text-align: center;
-      max-width: 620px;
+      max-width: 700px;
       width: 100%;
       padding: 0 32px;
       display: none;
       flex-direction: column;
       align-items: center;
+      z-index: 1;
     }
     .wg.wg-active { display: flex; }
 
     .wl-spacer { display: block; height: 1.1em; }
 
     .anim-line {
-      font-family: 'EB Garamond', serif;
-      font-style: italic;
+      font-family: 'Cinzel', serif;
+      font-style: normal;
       color: var(--gold-light);
-      line-height: 1.9;
+      line-height: 1.85;
       margin: 0;
       opacity: 0;
     }
-    .wl-large { font-size: clamp(1.3rem, 3.5vw, 1.9rem); }
-    .wl-med   { font-size: clamp(1.0rem, 2.6vw, 1.42rem); }
+    .wl-large { font-size: clamp(1.6rem, 4.2vw, 2.4rem); }
+    .wl-med   { font-size: clamp(1.2rem, 3.2vw, 1.85rem); }
 
     .anim-line.line-in {
       animation: wl-rise 1.5s ease forwards;
@@ -665,23 +696,23 @@
     }
 
     .tap-enter {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(0.75rem, 1.8vw, 0.92rem);
-      letter-spacing: 0.30em;
-      text-indent: 0.30em;
+      font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif;
+      font-size: clamp(1.1rem, 3vw, 1.55rem);
       color: var(--gold);
       opacity: 0;
+      line-height: 1.5;
+      text-shadow: 0 0 20px rgba(201,168,76,0.55);
     }
     .tap-enter.pulsing {
       animation: tap-fade-in 0.9s ease forwards, tap-pulse 2.8s ease-in-out 0.9s infinite;
     }
     @keyframes tap-fade-in {
       from { opacity: 0; }
-      to   { opacity: 0.65; }
+      to   { opacity: 0.72; }
     }
     @keyframes tap-pulse {
-      0%, 100% { opacity: 0.40; }
-      50%       { opacity: 0.90; }
+      0%, 100% { opacity: 0.42; text-shadow: 0 0 20px rgba(201,168,76,0.45); }
+      50%       { opacity: 0.95; text-shadow: 0 0 36px rgba(201,168,76,0.80); }
     }
   </style>
 </head>
@@ -689,6 +720,8 @@
 
 <!-- WELCOME OVERLAY -->
 <div id="welcome-overlay">
+
+  <div class="ov-mantra">ॐ नमः शिवाय</div>
 
   <div id="wg1" class="wg">
     <p class="anim-line wl-large">Shiva &mdash;</p>
@@ -717,7 +750,7 @@
   </div>
 
   <div id="wg4" class="wg">
-    <span class="tap-enter">&#10022; tap to enter &#10022;</span>
+    <span class="tap-enter">✦ स्पर्श करें ✦</span>
   </div>
 
 </div>
@@ -1475,11 +1508,81 @@ renderSuggestedQuestions();
     return;
   }
 
+  /* ── Tanpura drone ── */
+  var tCtx = null, tMaster = null, tOscs = [];
+
+  function startTanpura() {
+    tCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (tCtx.state === 'suspended') tCtx.resume();
+
+    tMaster = tCtx.createGain();
+    tMaster.gain.setValueAtTime(0, tCtx.currentTime);
+    tMaster.gain.linearRampToValueAtTime(0.13, tCtx.currentTime + 3);
+    tMaster.connect(tCtx.destination);
+
+    var filter = tCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 820;
+    filter.Q.value = 0.9;
+    filter.connect(tMaster);
+
+    var dly = tCtx.createDelay(1.5); dly.delayTime.value = 0.44;
+    var fb  = tCtx.createGain();     fb.gain.value  = 0.20;
+    var wet = tCtx.createGain();     wet.gain.value = 0.16;
+    dly.connect(fb); fb.connect(dly);
+    dly.connect(wet); wet.connect(tMaster);
+
+    function drone(freq, amp, detuneCents) {
+      var o = tCtx.createOscillator(), g = tCtx.createGain();
+      o.type = 'sine';
+      o.frequency.value = freq;
+      if (detuneCents) o.detune.value = detuneCents;
+      g.gain.value = amp;
+      o.connect(g); g.connect(filter); g.connect(dly);
+      o.start(); tOscs.push(o);
+    }
+
+    /* Sa — root, three voices slightly detuned for natural beating */
+    drone(136.1,  1.00,   0);
+    drone(136.1,  0.44,   4);
+    drone(136.1,  0.28,  -5);
+    /* Pa — fifth string */
+    drone(204.15, 0.32,   0);
+    drone(204.15, 0.16,   3);
+    /* Sa — octave */
+    drone(272.2,  0.20,   0);
+    drone(272.2,  0.10,   4);
+    /* Mandra Sa — sub-octave depth */
+    drone(68.05,  0.52,   0);
+    /* Upper partial shimmer */
+    drone(408.3,  0.05,   0);
+
+    /* Slow LFO tremolo — breathing pulse */
+    var lfo = tCtx.createOscillator(), lfoG = tCtx.createGain();
+    lfo.frequency.value = 0.07;
+    lfoG.gain.value     = 0.016;
+    lfo.connect(lfoG); lfoG.connect(tMaster.gain);
+    lfo.start(); tOscs.push(lfo);
+  }
+
+  function stopTanpura(fadeSec) {
+    if (!tMaster) return;
+    var t = tCtx.currentTime;
+    tMaster.gain.setValueAtTime(tMaster.gain.value, t);
+    tMaster.gain.linearRampToValueAtTime(0, t + fadeSec);
+    setTimeout(function () {
+      tOscs.forEach(function (o) { try { o.stop(); } catch (e) {} });
+      tOscs = []; tMaster = null;
+    }, fadeSec * 1000 + 100);
+  }
+
+  /* ── Overlay sequencing ── */
   var done = false;
 
   function dismiss() {
     if (done) return;
     done = true;
+    stopTanpura(0.9);
     overlay.classList.add('ov-exit');
     setTimeout(function () {
       overlay.remove();
@@ -1521,6 +1624,7 @@ renderSuggestedQuestions();
       activeEl = group;
 
       if (isLast) {
+        startTanpura();
         var tap = group.querySelector('.tap-enter');
         if (tap) tap.classList.add('pulsing');
         return;
