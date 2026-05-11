@@ -616,11 +616,13 @@
     #welcome-overlay {
       position: fixed;
       inset: 0;
-      background: url('nebula.png') center / cover no-repeat, #000;
+      background: url('/nebula.png') center / cover no-repeat,
+                  linear-gradient(160deg, #0d0022 0%, #04020e 45%, #080018 70%, #010008 100%);
       z-index: 500;
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
       transition: opacity 1.5s ease;
@@ -661,18 +663,18 @@
     }
 
     .ov-enter-wrap {
-      position: absolute;
-      bottom: 13%;
-      left: 0;
-      right: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      z-index: 2;
-      cursor: pointer;
-      transition: opacity 0.6s ease;
-    }
+  position: absolute;
+  bottom: 10%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+  cursor: pointer;
+  transition: opacity 0.6s ease;
+}
     .ov-enter-wrap.hidden {
       opacity: 0;
       pointer-events: none;
@@ -694,13 +696,14 @@
     .wl-spacer { display: block; height: 1.1em; }
 
     .anim-line {
-      font-family: 'Cinzel', serif;
-      font-style: normal;
-      color: var(--gold-light);
-      line-height: 1.85;
-      margin: 0;
-      opacity: 0;
-    }
+  font-family: 'Cinzel', serif;
+  font-style: normal;
+  text-align: center;
+  line-height: 2;
+  color: var(--gold-light);
+  margin: 0;
+  opacity: 0;
+}
     .wl-large { font-size: clamp(1.6rem, 4.2vw, 2.4rem); }
     .wl-med   { font-size: clamp(1.2rem, 3.2vw, 1.85rem); }
 
@@ -712,14 +715,14 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .tap-enter {
-      font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif;
-      font-size: clamp(1.4rem, 3.8vw, 2.0rem);
-      color: var(--gold);
-      opacity: 0;
-      line-height: 1.4;
-      text-shadow: 0 0 24px rgba(201,168,76,0.60);
-    }
+    .tap-hint {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  color: rgba(232, 208, 138, 0.55);
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+}
     .tap-enter.pulsing {
       animation: tap-fade-in 1.2s ease forwards, tap-pulse 2.8s ease-in-out 1.2s infinite;
     }
@@ -1544,22 +1547,37 @@ renderSuggestedQuestions();
     tCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (tCtx.state === 'suspended') tCtx.resume();
 
+    /* Compressor prevents harshness from summed oscillators */
+    var comp = tCtx.createDynamicsCompressor();
+    comp.threshold.value = -22; comp.knee.value = 12;
+    comp.ratio.value = 6; comp.attack.value = 0.012; comp.release.value = 0.5;
+    comp.connect(tCtx.destination);
+
     tMaster = tCtx.createGain();
     tMaster.gain.setValueAtTime(0, tCtx.currentTime);
-    tMaster.gain.linearRampToValueAtTime(0.13, tCtx.currentTime + 3);
-    tMaster.connect(tCtx.destination);
+    tMaster.gain.linearRampToValueAtTime(0.20, tCtx.currentTime + 3);
+    tMaster.connect(comp);
 
-    var filter = tCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 820;
-    filter.Q.value = 0.9;
-    filter.connect(tMaster);
+    /* Two-stage warm lowpass — smooth rolloff, no resonance peaks */
+    var lp1 = tCtx.createBiquadFilter();
+    lp1.type = 'lowpass'; lp1.frequency.value = 580; lp1.Q.value = 0.25;
+    var lp2 = tCtx.createBiquadFilter();
+    lp2.type = 'lowpass'; lp2.frequency.value = 1100; lp2.Q.value = 0.20;
+    lp2.connect(lp1); lp1.connect(tMaster);
 
-    var dly = tCtx.createDelay(1.5); dly.delayTime.value = 0.44;
-    var fb  = tCtx.createGain();     fb.gain.value  = 0.20;
-    var wet = tCtx.createGain();     wet.gain.value = 0.16;
-    dly.connect(fb); fb.connect(dly);
-    dly.connect(wet); wet.connect(tMaster);
+    /* Short delay — early reflections */
+    var dly1 = tCtx.createDelay(0.5); dly1.delayTime.value = 0.037;
+    var fb1  = tCtx.createGain(); fb1.gain.value = 0.06;
+    var wet1 = tCtx.createGain(); wet1.gain.value = 0.09;
+    dly1.connect(fb1); fb1.connect(dly1);
+    dly1.connect(wet1); wet1.connect(tMaster);
+
+    /* Long delay — hall spaciousness */
+    var dly2 = tCtx.createDelay(2.0); dly2.delayTime.value = 0.49;
+    var fb2  = tCtx.createGain(); fb2.gain.value = 0.15;
+    var wet2 = tCtx.createGain(); wet2.gain.value = 0.11;
+    dly2.connect(fb2); fb2.connect(dly2);
+    dly2.connect(wet2); wet2.connect(tMaster);
 
     function drone(freq, amp, detuneCents) {
       var o = tCtx.createOscillator(), g = tCtx.createGain();
@@ -1567,23 +1585,34 @@ renderSuggestedQuestions();
       o.frequency.value = freq;
       if (detuneCents) o.detune.value = detuneCents;
       g.gain.value = amp;
-      o.connect(g); g.connect(filter); g.connect(dly);
+      o.connect(g);
+      g.connect(lp2); g.connect(dly1); g.connect(dly2);
       o.start(); tOscs.push(o);
     }
 
-    drone(136.1,  1.00,   0);
-    drone(136.1,  0.44,   4);
-    drone(136.1,  0.28,  -5);
-    drone(204.15, 0.32,   0);
-    drone(204.15, 0.16,   3);
-    drone(272.2,  0.20,   0);
-    drone(272.2,  0.10,   4);
-    drone(68.05,  0.52,   0);
-    drone(408.3,  0.05,   0);
+    /* Sa — root, three detuned voices for natural beating */
+    drone(136.1,  0.68,   0);
+    drone(136.1,  0.28,   5);
+    drone(136.1,  0.18,  -6);
+    /* Pa — fifth string */
+    drone(204.15, 0.20,   0);
+    drone(204.15, 0.09,   3);
+    /* Ma — fourth (characteristic tanpura string) */
+    drone(181.5,  0.10,   0);
+    /* Sa — octave */
+    drone(272.2,  0.14,   0);
+    drone(272.2,  0.06,   5);
+    /* Mandra Sa — sub-octave depth */
+    drone(68.05,  0.36,   0);
+    /* Upper harmonic shimmer — very low gain */
+    drone(408.3,  0.04,   0);
+    drone(544.4,  0.02,   0);
+    drone(680.5,  0.01,   0);
 
+    /* Slow LFO — gentle breathing tremolo */
     var lfo = tCtx.createOscillator(), lfoG = tCtx.createGain();
-    lfo.frequency.value = 0.07;
-    lfoG.gain.value     = 0.016;
+    lfo.frequency.value = 0.06;
+    lfoG.gain.value     = 0.010;
     lfo.connect(lfoG); lfoG.connect(tMaster.gain);
     lfo.start(); tOscs.push(lfo);
   }
@@ -1611,10 +1640,10 @@ renderSuggestedQuestions();
 
   /* ── Text group sequencing ── */
   var groups      = ['wg1','wg2','wg3'].map(function(id){ return document.getElementById(id); });
-  var LINE_STAGGER  = 460;
-  var LINE_DURATION = 1500;
-  var GROUP_HOLD    = 2600;
-  var GROUP_FADEOUT = 750;
+  var LINE_STAGGER  = 500;
+  var LINE_DURATION = 1700;
+  var GROUP_HOLD    = 3000;
+  var GROUP_FADEOUT = 900;
   var activeEl = null;
 
   function runGroup(i) {
@@ -1654,15 +1683,16 @@ renderSuggestedQuestions();
     }, showDelay);
   }
 
-  /* ── Enter button tap triggers everything ── */
+  /* ── Tap anywhere triggers everything ── */
   var entered = false;
-  enterBtn.addEventListener('click', function () {
+  function onEnter() {
     if (entered) return;
     entered = true;
     enterBtn.classList.add('hidden');
     startTanpura();
-    setTimeout(function () { runGroup(0); }, 400);
-  });
+    setTimeout(function () { runGroup(0); }, 300);
+  }
+  overlay.addEventListener('click', onEnter);
 })();
 </script>
 <div class="footer">
