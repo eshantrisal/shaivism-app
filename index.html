@@ -615,10 +615,14 @@
     /* ── WELCOME OVERLAY ── */
     #welcome-overlay {
       position: fixed;
-      inset: 0;
-      background-image: url('https://i.ibb.co/DfM0Q6z2/nebula.png') center / cover no-repeat,
-                  linear-gradient(160deg, #0d0022 0%, #04020e 45%, #080018 70%, #010008 100%);
-      z-index: 500;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      background:
+        radial-gradient(ellipse at center, rgba(201,168,76,0.12) 0%, rgba(201,168,76,0.06) 25%, rgba(10,0,25,0.95) 55%, #02010a 100%),
+        linear-gradient(160deg, #0b001a 0%, #04020e 40%, #060012 70%, #010008 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -627,6 +631,19 @@
       -webkit-user-select: none;
       transition: opacity 1.5s ease;
       overflow: hidden;
+      animation: overlay-glow-pulse 8s ease-in-out infinite;
+    }
+    @keyframes overlay-glow-pulse {
+      0%, 100% {
+        background:
+          radial-gradient(ellipse at center, rgba(201,168,76,0.10) 0%, rgba(201,168,76,0.05) 25%, rgba(10,0,25,0.95) 55%, #02010a 100%),
+          linear-gradient(160deg, #0b001a 0%, #04020e 40%, #060012 70%, #010008 100%);
+      }
+      50% {
+        background:
+          radial-gradient(ellipse at center, rgba(201,168,76,0.18) 0%, rgba(201,168,76,0.10) 25%, rgba(10,0,25,0.92) 55%, #02010a 100%),
+          linear-gradient(160deg, #0b001a 0%, #04020e 40%, #060012 70%, #010008 100%);
+      }
     }
     #welcome-overlay::before {
       content: '';
@@ -1701,5 +1718,3 @@ renderSuggestedQuestions();
   trisaleshan@gmail.com
 </div>
 </body>
-</html>
-
