@@ -715,15 +715,16 @@
   color: var(--gold-light);
   margin: 0;
   opacity: 0;
+  transform: translateY(12px);
 }
     .wl-large { font-size: clamp(1.6rem, 4.2vw, 2.4rem); }
     .wl-med   { font-size: clamp(1.2rem, 3.2vw, 1.85rem); }
 
     .anim-line.line-in {
-      animation: wl-rise 1.5s ease forwards;
+      animation: wl-rise 1.4s ease forwards;
     }
     @keyframes wl-rise {
-      from { opacity: 0; transform: translateY(9px); }
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
@@ -773,32 +774,24 @@
   <div class="ov-mantra">ॐ नमः शिवाय</div>
 
   <div id="wg1" class="wg">
-    <p class="anim-line wl-large">Shiva &mdash;</p>
-    <p class="anim-line wl-large">is he a god you pray to?</p>
-    <span class="wl-spacer"></span>
-    <p class="anim-line wl-large">Or the very awareness</p>
+    <p class="anim-line wl-large">Shiva &mdash; god or your own awareness?</p>
   </div>
 
   <div id="wg2" class="wg">
-    <p class="anim-line wl-med">A thousand years ago, deep in the mountains of Kashmir,</p>
-    <p class="anim-line wl-med">a radical truth was whispered among sages:</p>
-    <span class="wl-spacer"></span>
-    <p class="anim-line wl-med">You are not searching for Shiva.</p>
-    <p class="anim-line wl-med">You are Shiva, pretending to search.</p>
+    <p class="anim-line wl-med">In Kashmir, sages whispered:</p>
+    <p class="anim-line wl-med">You are not seeking Shiva.</p>
+    <p class="anim-line wl-med">You are Shiva.</p>
   </div>
 
   <div id="wg3" class="wg">
-    <p class="anim-line wl-med">Every thought, every breath, every heartbeat &mdash;</p>
-    <p class="anim-line wl-med">consciousness, dancing as the universe.</p>
-    <span class="wl-spacer"></span>
-    <p class="anim-line wl-med">This is Kashmiri Shaivism.</p>
-    <p class="anim-line wl-med">Not a religion. Not a philosophy.</p>
-    <span class="wl-spacer"></span>
+    <p class="anim-line wl-med">This is Kashmir Shaivism.</p>
     <p class="anim-line wl-med">A remembering.</p>
   </div>
+
   <div id="wg4" class="wg">
-  <p class="anim-line wl-med">Ask your questions about Shaivism</p>
-</div>
+    <p class="anim-line wl-med">Seek your awareness &mdash;</p>
+    <p class="anim-line wl-med">ask questions about Shaivism</p>
+  </div>
 
   <div id="ov-enter" class="ov-enter-wrap">
     <span class="tap-enter pulsing">✦ स्पर्श करें ✦</span>
@@ -1660,11 +1653,12 @@ renderSuggestedQuestions();
   }
 
   /* ── Text group sequencing ── */
-  var groups      = ['wg1','wg2','wg3'].map(function(id){ return document.getElementById(id); });
-  var LINE_STAGGER  = 500;
-  var LINE_DURATION = 1700;
-  var GROUP_HOLD    = 3000;
-  var GROUP_FADEOUT = 900;
+  var groups       = ['wg1','wg2','wg3','wg4'].map(function(id){ return document.getElementById(id); });
+  var LINE_STAGGER  = 400;
+  var LINE_DURATION = 1400;
+  var GROUP_HOLD    = 2600;
+  var GROUP_FADEOUT = 800;
+  var LINE_BASE_DELAY = 80; /* ensures display:flex is painted before first animation fires */
   var activeEl = null;
 
   function runGroup(i) {
@@ -1686,20 +1680,21 @@ renderSuggestedQuestions();
       }, GROUP_FADEOUT);
     }
 
-    var showDelay = activeEl ? GROUP_FADEOUT + 120 : 0;
+    var showDelay = activeEl ? GROUP_FADEOUT + 100 : 0;
 
     setTimeout(function () {
       group.classList.add('wg-active');
+      void group.offsetHeight; /* force reflow — commits display:flex before animation starts */
       activeEl = group;
 
       var lines = group.querySelectorAll('.anim-line');
       lines.forEach(function (line, j) {
         setTimeout(function () {
           line.classList.add('line-in');
-        }, j * LINE_STAGGER);
+        }, LINE_BASE_DELAY + j * LINE_STAGGER);
       });
 
-      var totalGroupTime = (lines.length - 1) * LINE_STAGGER + LINE_DURATION + GROUP_HOLD;
+      var totalGroupTime = LINE_BASE_DELAY + (lines.length - 1) * LINE_STAGGER + LINE_DURATION + GROUP_HOLD;
       setTimeout(function () { runGroup(i + 1); }, totalGroupTime);
     }, showDelay);
   }
