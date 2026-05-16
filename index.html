@@ -620,7 +620,7 @@
       width: 100vw;
       height: 100vh;
       z-index: 9999;
-      background: rgba(0, 0, 0, 0.55);
+      background: rgba(0, 0, 0, 0.82);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -629,6 +629,22 @@
       -webkit-user-select: none;
       transition: opacity 1.5s ease;
       overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* ── SMOKE / MIST WISPS ── */
+    .smoke-wisp {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: smoke-rise linear infinite;
+    }
+    @keyframes smoke-rise {
+      0%   { transform: translateY(20vh) translateX(0)    scaleX(1.0) rotate(0deg);   opacity: 0;    }
+      12%  { opacity: 1; }
+      80%  { opacity: 0.6; }
+      100% { transform: translateY(-55vh) translateX(6vw) scaleX(1.6) rotate(8deg);   opacity: 0;    }
     }
     #welcome-overlay.ov-exit {
       opacity: 0;
@@ -711,24 +727,32 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    .tap-enter {
+      font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif;
+      font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+      color: var(--gold-light);
+      letter-spacing: 0.12em;
+      text-shadow: 0 0 18px rgba(201,168,76,0.70);
+    }
     .tap-enter.pulsing {
       animation: tap-fade-in 1.2s ease forwards, tap-pulse 2.8s ease-in-out 1.2s infinite;
     }
     @keyframes tap-fade-in {
       from { opacity: 0; }
-      to   { opacity: 0.80; }
+      to   { opacity: 0.90; }
     }
     @keyframes tap-pulse {
-      0%, 100% { opacity: 0.48; text-shadow: 0 0 24px rgba(201,168,76,0.50); }
-      50%       { opacity: 0.96; text-shadow: 0 0 42px rgba(201,168,76,0.85); }
+      0%, 100% { opacity: 0.55; text-shadow: 0 0 24px rgba(201,168,76,0.55); }
+      50%       { opacity: 1.00; text-shadow: 0 0 48px rgba(201,168,76,0.95), 0 0 90px rgba(201,168,76,0.40); }
     }
 
     .tap-hint {
       font-family: 'EB Garamond', serif;
       font-style: italic;
       font-size: clamp(1.1rem, 4vw, 1.6rem);
-      color: rgba(232, 208, 138, 0.72);
+      color: rgba(232, 208, 138, 0.92);
       letter-spacing: 0.08em;
+      text-shadow: 0 0 12px rgba(201,168,76,0.35);
       opacity: 0;
       animation: tap-fade-in 1.8s ease 0.5s forwards;
     }
@@ -738,6 +762,13 @@
 
 <!-- WELCOME OVERLAY -->
 <div id="welcome-overlay">
+
+  <!-- Incense smoke wisps -->
+  <div class="smoke-wisp" style="width:160px;height:260px;left:18%;bottom:-10%;background:radial-gradient(ellipse at center,rgba(255,255,255,0.055) 0%,rgba(201,168,76,0.025) 45%,transparent 70%);animation-duration:18s;animation-delay:0s;"></div>
+  <div class="smoke-wisp" style="width:110px;height:200px;left:48%;bottom:-5%;background:radial-gradient(ellipse at center,rgba(255,255,255,0.045) 0%,rgba(201,168,76,0.020) 40%,transparent 70%);animation-duration:22s;animation-delay:4s;"></div>
+  <div class="smoke-wisp" style="width:90px;height:180px;left:72%;bottom:-8%;background:radial-gradient(ellipse at center,rgba(255,255,255,0.040) 0%,rgba(201,168,76,0.018) 40%,transparent 70%);animation-duration:16s;animation-delay:7s;"></div>
+  <div class="smoke-wisp" style="width:130px;height:220px;left:32%;bottom:-12%;background:radial-gradient(ellipse at center,rgba(255,255,255,0.035) 0%,rgba(201,168,76,0.015) 45%,transparent 70%);animation-duration:25s;animation-delay:2s;"></div>
+  <div class="smoke-wisp" style="width:80px;height:160px;left:60%;bottom:-6%;background:radial-gradient(ellipse at center,rgba(255,255,255,0.050) 0%,rgba(201,168,76,0.022) 40%,transparent 70%);animation-duration:14s;animation-delay:10s;"></div>
 
   <div class="ov-mantra">ॐ नमः शिवाय</div>
 
