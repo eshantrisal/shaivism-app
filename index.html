@@ -673,56 +673,46 @@
       50%       { opacity: 1.00; text-shadow: 0 0 60px rgba(201,168,76,1.00), 0 0 120px rgba(201,168,76,0.65), 0 0 200px rgba(201,168,76,0.25); }
     }
 
-    /* ── Radiate: active during intro sequence ── */
+    /* ── Gentle breathing glow during intro sequence ── */
     .ov-mantra.radiating {
-      animation: mantra-radiate 2.4s ease-in-out infinite;
+      animation: mantra-breathe 5s ease-in-out infinite;
     }
-    @keyframes mantra-radiate {
+    @keyframes mantra-breathe {
       0%, 100% {
-        opacity: 1;
+        opacity: 0.88;
         text-shadow:
-          0 0 20px rgba(255,230,120,1.0),
-          0 0 55px rgba(201,168,76,0.90),
-          0 0 110px rgba(201,168,76,0.60),
-          0 0 180px rgba(201,168,76,0.30),
-          0 0 280px rgba(201,168,76,0.12);
+          0 0 30px rgba(201,168,76,0.85),
+          0 0 70px rgba(201,168,76,0.40),
+          0 0 130px rgba(201,168,76,0.18);
       }
       50% {
         opacity: 1;
         text-shadow:
-          0 0 30px rgba(255,240,140,1.0),
-          0 0 90px rgba(201,168,76,1.00),
-          0 0 180px rgba(201,168,76,0.78),
-          0 0 300px rgba(201,168,76,0.52),
-          0 0 450px rgba(201,168,76,0.28),
-          0 0 620px rgba(201,168,76,0.10);
+          0 0 45px rgba(201,168,76,1.0),
+          0 0 100px rgba(201,168,76,0.58),
+          0 0 180px rgba(201,168,76,0.28),
+          0 0 280px rgba(201,168,76,0.10);
       }
     }
 
-    /* Expanding gold rings radiating from the mantra */
-    .ov-mantra::before,
-    .ov-mantra::after {
-      content: '';
+    /* ── Background slow zoom ── */
+    .bg.zooming {
+      animation: bg-slow-zoom 20s ease-in-out forwards;
+      transform-origin: center center;
+    }
+    @keyframes bg-slow-zoom {
+      from { transform: scale(1.0); }
+      to   { transform: scale(1.08); }
+    }
+
+    /* ── Overlay particle canvas ── */
+    #ov-particles {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: min(380px, 80%);
-      height: 3.6em;
-      border-radius: 60px;
-      border: 1.5px solid rgba(201,168,76,0);
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 0;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
       pointer-events: none;
-    }
-    .ov-mantra.radiating::before {
-      animation: ring-expand 2.4s ease-out infinite;
-    }
-    .ov-mantra.radiating::after {
-      animation: ring-expand 2.4s ease-out infinite 1.2s;
-    }
-    @keyframes ring-expand {
-      0%   { transform: translate(-50%, -50%) scale(1);   border-color: rgba(201,168,76,0.90); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(3.6); border-color: rgba(201,168,76,0);    opacity: 0; }
     }
 
     .ov-enter-wrap {
@@ -815,6 +805,8 @@
 
 <!-- WELCOME OVERLAY -->
 <div id="welcome-overlay">
+
+  <canvas id="ov-particles"></canvas>
 
   <!-- Incense smoke wisps -->
   <div class="smoke-wisp" style="width:160px;height:260px;left:18%;bottom:-10%;background:radial-gradient(ellipse at center,rgba(255,255,255,0.055) 0%,rgba(201,168,76,0.025) 45%,transparent 70%);animation-duration:18s;animation-delay:0s;"></div>
@@ -1606,11 +1598,71 @@ renderSuggestedQuestions();
     return;
   }
 
+  /* ── Singing bowl strike ── */
+  function playSingingBowl(ctx) {
+    var osc  = ctx.createOscillator();
+    var gain = ctx.createGain();
+    /* Add a slight second partial for richer bowl timbre */
+    var osc2  = ctx.createOscillator();
+    var gain2 = ctx.createGain();
+
+    osc.type = 'sine';  osc.frequency.value  = 432;
+    osc2.type = 'sine'; osc2.frequency.value  = 864; /* 2nd harmonic, very quiet */
+
+    var t = ctx.currentTime;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.55, t + 0.01);  /* near-instant attack */
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 4.2);
+
+    gain2.gain.setValueAtTime(0, t);
+    gain2.gain.linearRampToValueAtTime(0.08, t + 0.01);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 2.8);
+
+    osc.connect(gain);   gain.connect(ctx.destination);
+    osc2.connect(gain2); gain2.connect(ctx.destination);
+    osc.start(t);  osc.stop(t + 4.3);
+    osc2.start(t); osc2.stop(t + 3.0);
+  }
+
+  /* ── Overlay particles ── */
+  function startOverlayParticles(canvas) {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    var ctx = canvas.getContext('2d');
+    var pts = [];
+    for (var i = 0; i < 40; i++) {
+      pts.push({
+        x:    Math.random() * canvas.width,
+        y:    canvas.height + Math.random() * canvas.height,
+        r:    Math.random() * 1.4 + 0.4,
+        spd:  Math.random() * 0.45 + 0.12,
+        drft: (Math.random() - 0.5) * 0.25,
+        op:   Math.random() * 0.28 + 0.06,
+      });
+    }
+    var alive = true;
+    canvas.addEventListener('remove', function () { alive = false; });
+    (function draw() {
+      if (!alive || !canvas.isConnected) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var i = 0; i < pts.length; i++) {
+        var p = pts[i];
+        p.y -= p.spd;  p.x += p.drft;
+        if (p.y < -8) { p.y = canvas.height + Math.random() * 40; p.x = Math.random() * canvas.width; }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(201,168,76,' + p.op + ')';
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    })();
+  }
+
   /* ── Tanpura drone ── */
   var tCtx = null, tMaster = null, tOscs = [];
 
-  function startTanpura() {
-    tCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function startTanpura(ctx) {
+    tCtx = ctx;
     if (tCtx.state === 'suspended') tCtx.resume();
 
     /* Compressor prevents harshness from summed oscillators */
@@ -1753,13 +1805,23 @@ renderSuggestedQuestions();
 
   /* ── Tap anywhere triggers everything ── */
   var mantraEl = overlay.querySelector('.ov-mantra');
-  var entered = false;
+  var bgEl     = document.querySelector('.bg');
+  var ovCanvas = document.getElementById('ov-particles');
+  var entered  = false;
   function onEnter() {
     if (entered) return;
     entered = true;
     enterBtn.classList.add('hidden');
     if (mantraEl) mantraEl.classList.add('radiating');
-    startTanpura();
+    if (bgEl)     bgEl.classList.add('zooming');
+    if (ovCanvas) startOverlayParticles(ovCanvas);
+
+    /* Shared AudioContext: bowl strikes first, tanpura fades in beneath after 1.5 s */
+    var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    playSingingBowl(audioCtx);
+    setTimeout(function () { startTanpura(audioCtx); }, 1500);
+
     setTimeout(function () { runGroup(0); }, 300);
   }
   overlay.addEventListener('click', onEnter);
