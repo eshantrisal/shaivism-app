@@ -620,9 +620,7 @@
       width: 100vw;
       height: 100vh;
       z-index: 9999;
-      background:
-        radial-gradient(ellipse at center, rgba(201,168,76,0.12) 0%, rgba(201,168,76,0.06) 25%, rgba(10,0,25,0.95) 55%, #02010a 100%),
-        linear-gradient(160deg, #0b001a 0%, #04020e 40%, #060012 70%, #010008 100%);
+      background: rgba(0, 0, 0, 0.55);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -631,26 +629,6 @@
       -webkit-user-select: none;
       transition: opacity 1.5s ease;
       overflow: hidden;
-      animation: overlay-glow-pulse 8s ease-in-out infinite;
-    }
-    @keyframes overlay-glow-pulse {
-      0%, 100% {
-        background:
-          radial-gradient(ellipse at center, rgba(201,168,76,0.10) 0%, rgba(201,168,76,0.05) 25%, rgba(10,0,25,0.95) 55%, #02010a 100%),
-          linear-gradient(160deg, #0b001a 0%, #04020e 40%, #060012 70%, #010008 100%);
-      }
-      50% {
-        background:
-          radial-gradient(ellipse at center, rgba(201,168,76,0.18) 0%, rgba(201,168,76,0.10) 25%, rgba(10,0,25,0.92) 55%, #02010a 100%),
-          linear-gradient(160deg, #0b001a 0%, #04020e 40%, #060012 70%, #010008 100%);
-      }
-    }
-    #welcome-overlay::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.25);
-      z-index: 0;
     }
     #welcome-overlay.ov-exit {
       opacity: 0;
@@ -681,13 +659,14 @@
 
     .ov-enter-wrap {
   position: absolute;
-  bottom: 10%;
+  top: 50%;
   left: 0;
   right: 0;
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   z-index: 2;
   cursor: pointer;
   transition: opacity 0.6s ease;
@@ -732,14 +711,6 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .tap-hint {
-  font-family: 'EB Garamond', serif;
-  font-style: italic;
-  font-size: clamp(0.8rem, 2vw, 1rem);
-  color: rgba(232, 208, 138, 0.55);
-  letter-spacing: 0.06em;
-  opacity: 0.8;
-}
     .tap-enter.pulsing {
       animation: tap-fade-in 1.2s ease forwards, tap-pulse 2.8s ease-in-out 1.2s infinite;
     }
@@ -755,11 +726,11 @@
     .tap-hint {
       font-family: 'EB Garamond', serif;
       font-style: italic;
-      font-size: clamp(0.78rem, 2vw, 0.95rem);
-      color: rgba(232, 208, 138, 0.52);
+      font-size: clamp(1.1rem, 4vw, 1.6rem);
+      color: rgba(232, 208, 138, 0.72);
       letter-spacing: 0.08em;
       opacity: 0;
-      animation: tap-fade-in 1.8s ease 1.5s forwards;
+      animation: tap-fade-in 1.8s ease 0.5s forwards;
     }
   </style>
 </head>
@@ -800,9 +771,7 @@
 
   <div id="ov-enter" class="ov-enter-wrap">
     <span class="tap-enter pulsing">✦ स्पर्श करें ✦</span>
-    <span class="tap-hint" style="font-size: clamp(1rem, 3.5vw, 1.4rem);">
-  Touch here to know about Shaivism
-</span>
+    <span class="tap-hint">Touch here to know about Shaivism</span>
   </div>
 
 </div>
